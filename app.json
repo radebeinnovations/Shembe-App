@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "Shembe App",
+    "slug": "shembe-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.shembe.app"
+    },
+    "android": {
+      "package": "com.shembe.app"
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
