@@ -1,7 +1,17 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { Audio } from 'expo-av';
+import { Platform } from 'react-native';
 import { Hymn, Sermon } from '../types';
 import { MOCK_HYMNS, MOCK_SERMONS } from '../data/mockData';
+
+// ── TypeScript stubs for YouTube IFrame API ──────────────────────────────────
+declare global {
+  interface Window {
+    YT: any;
+    onYouTubeIframeAPIReady: () => void;
+    _ytApiLoading: boolean;
+  }
+}
 
 interface AudioContextType {
   activeTrack: {
@@ -30,6 +40,9 @@ interface AudioContextType {
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
 
+// ── Singleton YouTube player div id ─────────────────────────────────────────
+const YT_PLAYER_DIV_ID = 'yt-global-player';
+
 export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [activeTrack, setActiveTrack] = useState<AudioContextType['activeTrack']>(null);
@@ -38,23 +51,106 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [durationMillis, setDurationMillis] = useState(0);
   const [isModalVisible, setModalVisible] = useState(false);
 
+  // YouTube IFrame API player reference
+  const ytPlayerRef = useRef<any>(null);
+  const positionTimerRef = useRef<any>(null);
+
+  // ── Bootstrap the YouTube IFrame API once (web only) ─────────────────────
   useEffect(() => {
-    let interval: any = null;
-    if (isPlaying && activeTrack?.youtubeId) {
-      interval = setInterval(() => {
-        setPositionMillis((prev) => {
-          if (prev >= 255000) {
-            setIsPlaying(false);
-            return 0;
-          }
-          return prev + 1000;
-        });
-      }, 1000);
+    if (Platform.OS !== 'web') return;
+
+    // Create the hidden div for the YouTube player if not already present
+    if (!document.getElementById(YT_PLAYER_DIV_ID)) {
+      const div = document.createElement('div');
+      div.id = YT_PLAYER_DIV_ID;
+      div.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;';
+      document.body.appendChild(div);
     }
-    return () => {
-      if (interval) clearInterval(interval);
+
+    // Load the YT IFrame API script only once
+    if (!window._ytApiLoading && !window.YT) {
+      window._ytApiLoading = true;
+      const script = document.createElement('script');
+      script.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(script);
+    }
+  }, []);
+
+  // ── Position polling for YouTube player ──────────────────────────────────
+  const startPositionPolling = () => {
+    stopPositionPolling();
+    positionTimerRef.current = setInterval(() => {
+      if (ytPlayerRef.current && typeof ytPlayerRef.current.getCurrentTime === 'function') {
+        const currentSec = ytPlayerRef.current.getCurrentTime();
+        const durationSec = ytPlayerRef.current.getDuration();
+        setPositionMillis(Math.floor(currentSec * 1000));
+        if (durationSec > 0) setDurationMillis(Math.floor(durationSec * 1000));
+      }
+    }, 500);
+  };
+
+  const stopPositionPolling = () => {
+    if (positionTimerRef.current) {
+      clearInterval(positionTimerRef.current);
+      positionTimerRef.current = null;
+    }
+  };
+
+  // ── Load a YouTube video into the singleton player ────────────────────────
+  const loadYouTubeVideo = (videoId: string) => {
+    if (Platform.OS !== 'web') return;
+
+    const doLoad = () => {
+      if (ytPlayerRef.current && typeof ytPlayerRef.current.loadVideoById === 'function') {
+        // Player already exists – just swap the video
+        ytPlayerRef.current.loadVideoById({ videoId, startSeconds: 0 });
+      } else {
+        // Create a fresh player
+        ytPlayerRef.current = new window.YT.Player(YT_PLAYER_DIV_ID, {
+          videoId,
+          playerVars: {
+            autoplay: 1,
+            controls: 0,
+            rel: 0,
+            modestbranding: 1,
+            enablejsapi: 1,
+          },
+          events: {
+            onReady: () => {
+              ytPlayerRef.current.playVideo();
+              startPositionPolling();
+            },
+            onStateChange: (event: any) => {
+              // YT.PlayerState: PLAYING=1, PAUSED=2, ENDED=0
+              if (event.data === 1) {
+                setIsPlaying(true);
+                startPositionPolling();
+              } else if (event.data === 2) {
+                setIsPlaying(false);
+                stopPositionPolling();
+              } else if (event.data === 0) {
+                // ended
+                setIsPlaying(false);
+                setPositionMillis(0);
+                stopPositionPolling();
+              }
+            },
+          },
+        });
+      }
     };
-  }, [isPlaying, activeTrack?.youtubeId]);
+
+    if (window.YT && window.YT.Player) {
+      doLoad();
+    } else {
+      // Queue initialization for when the API is ready
+      const previousReady = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => {
+        if (previousReady) previousReady();
+        doLoad();
+      };
+    }
+  };
 
   const onPlaybackStatusUpdate = (status: any) => {
     if (status.isLoaded) {
@@ -68,6 +164,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
+  // ── Load & play any track ─────────────────────────────────────────────────
   const loadAndPlayTrack = async (
     type: 'hymn' | 'sermon',
     id: string,
@@ -78,74 +175,73 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     hymnNumber?: number,
     youtubeId?: string
   ) => {
-    try {
-      if (sound) {
-        await sound.unloadAsync();
-        setSound(null);
+    // Stop any existing expo-av sound
+    if (sound) {
+      await sound.unloadAsync();
+      setSound(null);
+    }
+    // Stop YouTube if switching away
+    if (ytPlayerRef.current && typeof ytPlayerRef.current.stopVideo === 'function') {
+      ytPlayerRef.current.stopVideo();
+    }
+    stopPositionPolling();
+    setPositionMillis(0);
+    setDurationMillis(0);
+
+    setActiveTrack({ type, id, title, subtitle, audioUrl: '', verses, number: hymnNumber, youtubeId });
+    setIsPlaying(true);
+    setModalVisible(true);
+
+    if (youtubeId && Platform.OS === 'web') {
+      // ── YouTube path ──────────────────────────────────────────────────────
+      loadYouTubeVideo(youtubeId);
+    } else if (audioUrl && !audioUrl.includes('soundhelix.com')) {
+      // ── expo-av path ──────────────────────────────────────────────────────
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          staysActiveInBackground: true,
+          playsInSilentModeIOS: true,
+          shouldDuckAndroid: true,
+        });
+        const { sound: newSound } = await Audio.Sound.createAsync(
+          { uri: audioUrl },
+          { shouldPlay: true },
+          onPlaybackStatusUpdate
+        );
+        setSound(newSound);
+      } catch (e) {
+        console.log('Error loading audio:', e);
       }
-
-      // If item has a YouTube video ID or audioUrl is empty/placeholder, play ONLY the YouTube video stream
-      const isPlaceholderAudio = !audioUrl || audioUrl.includes('soundhelix.com');
-
-      if (youtubeId || isPlaceholderAudio) {
-        setActiveTrack({ type, id, title, subtitle, audioUrl: '', verses, number: hymnNumber, youtubeId });
-        setIsPlaying(true);
-        setModalVisible(true);
-        return;
-      }
-
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: false,
-        staysActiveInBackground: true,
-        playsInSilentModeIOS: true,
-        shouldDuckAndroid: true,
-      });
-
-      const { sound: newSound } = await Audio.Sound.createAsync(
-        { uri: audioUrl },
-        { shouldPlay: true },
-        onPlaybackStatusUpdate
-      );
-
-      setSound(newSound);
-      setActiveTrack({ type, id, title, subtitle, audioUrl, verses, number: hymnNumber, youtubeId });
-      setIsPlaying(true);
-      setModalVisible(true);
-    } catch (e) {
-      console.log('Error loading audio:', e);
-      setActiveTrack({ type, id, title, subtitle, audioUrl: '', verses, number: hymnNumber, youtubeId });
-      setIsPlaying(true);
-      setModalVisible(true);
     }
   };
 
   const playHymn = async (hymn: Hymn) => {
     await loadAndPlayTrack(
-      'hymn',
-      hymn.id,
-      hymn.title,
+      'hymn', hymn.id, hymn.title,
       `Hymn ${hymn.number} • Ebuhleni Choir`,
-      hymn.audioUrl || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-      hymn.verses,
-      hymn.number,
-      hymn.youtubeId
+      hymn.audioUrl || '',
+      hymn.verses, hymn.number, hymn.youtubeId
     );
   };
 
   const playSermon = async (sermon: Sermon) => {
     await loadAndPlayTrack(
-      'sermon',
-      sermon.id,
-      sermon.title,
-      sermon.speaker,
-      sermon.audioUrl || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
-      undefined,
-      undefined,
-      sermon.youtubeId
+      'sermon', sermon.id, sermon.title, sermon.speaker,
+      sermon.audioUrl || '',
+      undefined, undefined, sermon.youtubeId
     );
   };
 
   const togglePlayPause = async () => {
+    if (ytPlayerRef.current && activeTrack?.youtubeId) {
+      if (isPlaying) {
+        ytPlayerRef.current.pauseVideo();
+      } else {
+        ytPlayerRef.current.playVideo();
+      }
+      return;
+    }
     if (sound) {
       if (isPlaying) {
         await sound.pauseAsync();
@@ -158,6 +254,12 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const seekTo = async (positionMs: number) => {
+    const targetSecs = positionMs / 1000;
+    if (ytPlayerRef.current && typeof ytPlayerRef.current.seekTo === 'function') {
+      ytPlayerRef.current.seekTo(targetSecs, true);
+      setPositionMillis(positionMs);
+      return;
+    }
     if (sound) {
       await sound.setPositionAsync(positionMs);
     }
@@ -165,6 +267,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const stopAudio = async () => {
+    if (ytPlayerRef.current && typeof ytPlayerRef.current.stopVideo === 'function') {
+      ytPlayerRef.current.stopVideo();
+    }
+    stopPositionPolling();
     if (sound) {
       await sound.stopAsync();
       await sound.unloadAsync();
@@ -173,6 +279,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setActiveTrack(null);
     setIsPlaying(false);
     setModalVisible(false);
+    setPositionMillis(0);
+    setDurationMillis(0);
   };
 
   const playNextTrack = async () => {

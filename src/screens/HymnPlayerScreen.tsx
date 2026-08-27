@@ -37,7 +37,6 @@ export const HymnPlayerScreen: React.FC<HymnPlayerScreenProps> = ({
   const { isFavoriteHymn, toggleFavoriteHymn } = useBookmarks();
 
   const [isDownloaded, setIsDownloaded] = useState(false);
-  const [startSecs, setStartSecs] = useState<number>(0);
   const [barWidth, setBarWidth] = useState(300);
 
   const hymnTitle = activeTrack?.title || 'Nkosi Yami, Woza Kimina';
@@ -56,25 +55,22 @@ export const HymnPlayerScreen: React.FC<HymnPlayerScreenProps> = ({
   const currentDuration = durationMillis > 0 ? durationMillis : 255000;
   const progressPercent = Math.min(100, Math.max(0, (positionMillis / currentDuration) * 100));
 
+
   const handleSeekTouch = (evt: any) => {
     if (!currentDuration) return;
     const touchX = evt.nativeEvent.locationX;
-    const newPercent = touchX / barWidth;
+    const newPercent = Math.min(1, Math.max(0, touchX / barWidth));
     const targetMs = Math.floor(newPercent * currentDuration);
-    const targetSecs = Math.floor(targetMs / 1000);
-    setStartSecs(targetSecs);
     seekTo(targetMs);
   };
 
   const handleRewind15 = () => {
     const newPos = Math.max(0, positionMillis - 15000);
-    setStartSecs(Math.floor(newPos / 1000));
     seekTo(newPos);
   };
 
   const handleFastForward15 = () => {
     const newPos = Math.min(currentDuration, positionMillis + 15000);
-    setStartSecs(Math.floor(newPos / 1000));
     seekTo(newPos);
   };
 
@@ -94,17 +90,6 @@ export const HymnPlayerScreen: React.FC<HymnPlayerScreenProps> = ({
 
   return (
     <View style={styles.container}>
-      {/* Hidden YouTube Audio Stream Player (Invisible, plays real YouTube audio in background) */}
-      {activeTrack?.youtubeId && isPlaying && Platform.OS === 'web' && (
-        <View style={styles.hiddenAudioStreamContainer}>
-          <iframe
-            key={`${activeTrack.youtubeId}-${startSecs}`}
-            src={`https://www.youtube.com/embed/${activeTrack.youtubeId}?autoplay=1${startSecs > 0 ? `&start=${startSecs}` : ''}`}
-            style={{ width: '100%', height: '100%', border: 0 }}
-            allow="autoplay; encrypted-media"
-          />
-        </View>
-      )}
 
       {/* Top Header - Restored Clean Stitch Design */}
       <View style={styles.header}>
@@ -126,13 +111,20 @@ export const HymnPlayerScreen: React.FC<HymnPlayerScreenProps> = ({
       </View>
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        {/* Landscape Hero Artwork Image - Restored Original Prototype Format */}
+        {/* Hero Artwork - Modern Shembe Sacred Music Cover Art */}
         <View style={styles.artworkWrapper}>
           <Image
-            source={require('../../assets/hymn_player_artwork.png')}
+            source={require('../../assets/shembe_cover.webp')}
             style={styles.artworkImage}
             resizeMode="cover"
           />
+          {/* Playing indicator overlay */}
+          {isPlaying && (
+            <View style={styles.nowPlayingOverlay}>
+              <View style={styles.nowPlayingDot} />
+              <Text style={styles.nowPlayingText}>NOW PLAYING</Text>
+            </View>
+          )}
         </View>
 
         {/* Track Info & Favourite Button */}
@@ -180,10 +172,13 @@ export const HymnPlayerScreen: React.FC<HymnPlayerScreenProps> = ({
         <View style={styles.controlsRow}>
           {/* Rewind -15 Seconds */}
           <TouchableOpacity style={styles.subControlBtn} onPress={handleRewind15} activeOpacity={0.7}>
-            <Ionicons name="refresh-circle-outline" size={26} color={COLORS.primary} />
+            <View style={styles.seekBtnContainer}>
+              <Ionicons name="play-back" size={20} color={COLORS.primary} />
+              <Text style={styles.seekBtnLabel}>15</Text>
+            </View>
           </TouchableOpacity>
 
-          {/* Previous Track (Hymn 140 -> Hymn 112 -> Hymn 89 -> etc) */}
+          {/* Previous Track */}
           <TouchableOpacity style={styles.skipBtn} onPress={playPrevTrack} activeOpacity={0.7}>
             <Ionicons name="play-skip-back" size={28} color={COLORS.primary} />
           </TouchableOpacity>
@@ -201,14 +196,17 @@ export const HymnPlayerScreen: React.FC<HymnPlayerScreenProps> = ({
             />
           </TouchableOpacity>
 
-          {/* Next Track (Hymn 1 -> Hymn 24 -> Hymn 55 -> Hymn 89 -> etc) */}
+          {/* Next Track */}
           <TouchableOpacity style={styles.skipBtn} onPress={playNextTrack} activeOpacity={0.7}>
             <Ionicons name="play-skip-forward" size={28} color={COLORS.primary} />
           </TouchableOpacity>
 
           {/* Fast Forward +15 Seconds */}
           <TouchableOpacity style={styles.subControlBtn} onPress={handleFastForward15} activeOpacity={0.7}>
-            <Ionicons name="repeat" size={22} color={COLORS.onSurfaceVariant} />
+            <View style={styles.seekBtnContainer}>
+              <Text style={styles.seekBtnLabel}>15</Text>
+              <Ionicons name="play-forward" size={20} color={COLORS.primary} />
+            </View>
           </TouchableOpacity>
         </View>
 
@@ -303,15 +301,43 @@ const styles = StyleSheet.create({
   },
   artworkWrapper: {
     width: '100%',
-    height: 200,
+    aspectRatio: 1,
+    maxHeight: 300,
     borderRadius: RADIUS.xl,
     overflow: 'hidden',
-    backgroundColor: '#000',
-    ...SHADOWS.card,
+    backgroundColor: COLORS.primaryContainer,
+    position: 'relative',
+    ...SHADOWS.goldGlow,
+    borderWidth: 2,
+    borderColor: 'rgba(115,92,0,0.2)',
   },
   artworkImage: {
     width: '100%',
     height: '100%',
+  },
+  nowPlayingOverlay: {
+    position: 'absolute',
+    bottom: 12,
+    left: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(1,45,29,0.85)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+  },
+  nowPlayingDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: '#4ade80',
+  },
+  nowPlayingText: {
+    color: '#4ade80',
+    fontSize: 9,
+    fontWeight: '900',
+    letterSpacing: 1,
   },
   trackInfoRow: {
     flexDirection: 'row',
@@ -397,6 +423,16 @@ const styles = StyleSheet.create({
     height: 44,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  seekBtnContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  seekBtnLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: COLORS.primary,
   },
   skipBtn: {
     width: 48,

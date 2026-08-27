@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,9 @@ import {
   Modal,
   ScrollView,
   SafeAreaView,
+  Image,
   Platform,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAudio } from '../context/AudioContext';
@@ -25,6 +27,36 @@ export const AudioPlayerModal: React.FC = () => {
     setModalVisible,
   } = useAudio();
 
+  // Animated pulse for the pill glow when playing
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const pillScaleAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (activeTrack && !isModalVisible) {
+      // Animate pill in
+      Animated.spring(pillScaleAnim, {
+        toValue: 1,
+        tension: 80,
+        friction: 9,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [activeTrack, isModalVisible]);
+
+  useEffect(() => {
+    if (isPlaying) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, { toValue: 1.03, duration: 800, useNativeDriver: true }),
+          Animated.timing(pulseAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
+        ])
+      ).start();
+    } else {
+      pulseAnim.stopAnimation();
+      Animated.timing(pulseAnim, { toValue: 1, duration: 200, useNativeDriver: true }).start();
+    }
+  }, [isPlaying]);
+
   if (!activeTrack) return null;
 
   const formatTime = (ms: number) => {
@@ -39,52 +71,83 @@ export const AudioPlayerModal: React.FC = () => {
 
   return (
     <>
-      {/* Floating Mini Player Bar */}
+      {/* Floating Mini Player Pill - sits above the tab bar */}
       {!isModalVisible && (
-        <TouchableOpacity
-          style={styles.miniPlayer}
-          onPress={() => setModalVisible(true)}
-          activeOpacity={0.9}
+        <Animated.View
+          style={[
+            styles.miniPillWrapper,
+            { transform: [{ scale: pulseAnim }, { scaleX: pillScaleAnim }] },
+          ]}
         >
-          <View style={styles.miniLeft}>
-            <View style={styles.miniDisc}>
-              <Ionicons
-                name={activeTrack.type === 'hymn' ? 'musical-notes' : 'headset'}
-                size={18}
-                color={COLORS.white}
+          <TouchableOpacity
+            style={styles.miniPill}
+            onPress={() => setModalVisible(true)}
+            activeOpacity={0.92}
+          >
+            {/* Animated progress bar at the top of pill */}
+            <View style={styles.pillProgressBg}>
+              <Animated.View
+                style={[styles.pillProgressFill, { width: `${progressPercent}%` as any }]}
               />
             </View>
-            <View style={styles.miniInfo}>
-              <Text style={styles.miniTitle} numberOfLines={1}>
+
+            {/* Album Art Thumbnail */}
+            <Image
+              source={require('../../assets/shembe_cover.webp')}
+              style={styles.pillThumb}
+              resizeMode="cover"
+            />
+
+            {/* Track Info */}
+            <View style={styles.pillInfo}>
+              <View style={styles.pillTrackType}>
+                <View style={[styles.pillTypeDot, { backgroundColor: isPlaying ? '#4ade80' : COLORS.onPrimaryContainer }]} />
+                <Text style={styles.pillTypeText}>
+                  {activeTrack.type === 'hymn' ? 'Isihlabelelo' : 'Inkonzo'}
+                </Text>
+              </View>
+              <Text style={styles.pillTitle} numberOfLines={1}>
                 {activeTrack.title}
               </Text>
-              <Text style={styles.miniSubtitle} numberOfLines={1}>
-                {activeTrack.subtitle}
-              </Text>
             </View>
-          </View>
 
-          <View style={styles.miniControls}>
-            <TouchableOpacity onPress={togglePlayPause} style={styles.miniControlBtn}>
-              <Ionicons
-                name={isPlaying ? 'pause' : 'play'}
-                size={22}
-                color={COLORS.white}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={stopAudio} style={styles.miniControlBtn}>
-              <Ionicons name="close" size={22} color={COLORS.onPrimaryContainer} />
-            </TouchableOpacity>
-          </View>
+            {/* Controls */}
+            <View style={styles.pillControls}>
+              <TouchableOpacity
+                style={styles.pillPlayBtn}
+                onPress={(e) => {
+                  e.stopPropagation?.();
+                  togglePlayPause();
+                }}
+                activeOpacity={0.8}
+              >
+                <Ionicons
+                  name={isPlaying ? 'pause' : 'play'}
+                  size={18}
+                  color={COLORS.white}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.pillCloseBtn}
+                onPress={(e) => {
+                  e.stopPropagation?.();
+                  stopAudio();
+                }}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="close" size={16} color={COLORS.onPrimaryContainer} />
+              </TouchableOpacity>
+            </View>
 
-          {/* Mini progress line */}
-          <View style={styles.progressBarBg}>
-            <View style={[styles.progressBarFill, { width: `${progressPercent}%` }]} />
-          </View>
-        </TouchableOpacity>
+            {/* Expand chevron hint */}
+            <View style={styles.expandHint}>
+              <Ionicons name="chevron-up" size={10} color="rgba(255,255,255,0.5)" />
+            </View>
+          </TouchableOpacity>
+        </Animated.View>
       )}
 
-      {/* Full-Screen Hymn & Audio Modal */}
+      {/* Full-Screen Player Modal */}
       <Modal
         visible={isModalVisible}
         animationType="slide"
@@ -108,25 +171,26 @@ export const AudioPlayerModal: React.FC = () => {
           </View>
 
           <ScrollView style={styles.versesScroll} contentContainerStyle={styles.scrollContent}>
-            <View style={styles.coverDiscContainer}>
-              {activeTrack.youtubeId && Platform.OS === 'web' ? (
-                <View style={{ width: '100%', height: 210, borderRadius: 16, overflow: 'hidden', marginBottom: 12, backgroundColor: '#000' }}>
-                  <iframe
-                    src={`https://www.youtube.com/embed/${activeTrack.youtubeId}?autoplay=1`}
-                    style={{ width: '100%', height: '100%', border: 0 }}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </View>
-              ) : (
-                <View style={styles.largeDisc}>
-                  <Ionicons
-                    name={activeTrack.type === 'hymn' ? 'book' : 'radio'}
-                    size={52}
-                    color={COLORS.white}
-                  />
-                </View>
-              )}
+            {/* Modern Shembe Album Cover - Hero Section */}
+            <View style={styles.coverHeroSection}>
+              <View style={styles.coverArtWrapper}>
+                <Image
+                  source={require('../../assets/shembe_cover.webp')}
+                  style={styles.coverArtImage}
+                  resizeMode="cover"
+                />
+                {/* Floating play state badge on cover */}
+                {isPlaying && (
+                  <View style={styles.coverPlayingBadge}>
+                    <View style={styles.coverPlayingDot} />
+                    <Text style={styles.coverPlayingText}>NOW PLAYING</Text>
+                  </View>
+                )}
+              </View>
+
+
+
+
               <Text style={styles.fullTitle}>{activeTrack.title}</Text>
               <Text style={styles.fullSubtitle}>{activeTrack.subtitle}</Text>
             </View>
@@ -156,7 +220,7 @@ export const AudioPlayerModal: React.FC = () => {
             <View style={styles.timelineRow}>
               <Text style={styles.timeText}>{formatTime(positionMillis)}</Text>
               <View style={styles.fullProgressBg}>
-                <View style={[styles.fullProgressFill, { width: `${progressPercent}%` }]} />
+                <View style={[styles.fullProgressFill, { width: `${progressPercent}%` as any }]} />
               </View>
               <Text style={styles.timeText}>{formatTime(durationMillis || 240000)}</Text>
             </View>
@@ -194,71 +258,104 @@ export const AudioPlayerModal: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  miniPlayer: {
+  // ── Mini Pill ────────────────────────────────────────────────────────────────
+  miniPillWrapper: {
     position: 'absolute',
-    bottom: 64,
-    left: SPACING.md,
-    right: SPACING.md,
-    backgroundColor: COLORS.primary,
-    borderRadius: RADIUS.md,
-    padding: SPACING.sm,
-    paddingHorizontal: SPACING.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    overflow: 'hidden',
-    ...SHADOWS.card,
+    bottom: 72, // sits right above the 64px tab bar with a tiny gap
+    left: 16,
+    right: 16,
     zIndex: 1000,
   },
-  miniLeft: {
+  miniPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
-    marginRight: SPACING.sm,
-  },
-  miniDisc: {
-    width: 36,
-    height: 36,
-    borderRadius: RADIUS.full,
     backgroundColor: COLORS.primaryContainer,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: SPACING.sm,
+    borderRadius: 30,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    gap: 10,
+    overflow: 'hidden',
+    ...SHADOWS.goldGlow,
+    borderWidth: 1,
+    borderColor: 'rgba(134,175,153,0.3)',
   },
-  miniInfo: {
-    flex: 1,
-  },
-  miniTitle: {
-    color: COLORS.white,
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  miniSubtitle: {
-    color: COLORS.onPrimaryContainer,
-    fontSize: 11,
-  },
-  miniControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  miniControlBtn: {
-    padding: 6,
-  },
-  progressBarBg: {
+  pillProgressBg: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: 3,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    height: 2,
+    backgroundColor: 'rgba(255,255,255,0.12)',
   },
-  progressBarFill: {
+  pillProgressFill: {
     height: '100%',
     backgroundColor: COLORS.secondaryContainer,
+    borderRadius: 2,
+  },
+  pillThumb: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  pillInfo: {
+    flex: 1,
+    gap: 2,
+  },
+  pillTrackType: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  pillTypeDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  pillTypeText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: COLORS.onPrimaryContainer,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  pillTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: COLORS.white,
+  },
+  pillControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  pillPlayBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pillCloseBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  expandHint: {
+    position: 'absolute',
+    top: 4,
+    alignSelf: 'center',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
   },
 
-  // Modal styles
+  // ── Full Modal ────────────────────────────────────────────────────────────────
   modalContainer: {
     flex: 1,
     backgroundColor: COLORS.surface,
@@ -287,19 +384,55 @@ const styles = StyleSheet.create({
     padding: SPACING.lg,
     paddingBottom: 140,
   },
-  coverDiscContainer: {
+
+  // Cover Hero
+  coverHeroSection: {
     alignItems: 'center',
-    marginVertical: SPACING.md,
+    marginBottom: SPACING.lg,
   },
-  largeDisc: {
-    width: 100,
-    height: 100,
-    borderRadius: RADIUS.full,
-    backgroundColor: COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
+  coverArtWrapper: {
+    width: 200,
+    height: 200,
+    borderRadius: 24,
+    overflow: 'hidden',
     marginBottom: SPACING.md,
-    ...SHADOWS.card,
+    position: 'relative',
+    ...SHADOWS.goldGlow,
+    borderWidth: 2,
+    borderColor: 'rgba(115,92,0,0.25)',
+  },
+  coverArtImage: {
+    width: '100%',
+    height: '100%',
+  },
+  coverPlayingBadge: {
+    position: 'absolute',
+    bottom: 10,
+    left: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(1,45,29,0.85)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 20,
+  },
+  coverPlayingDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: '#4ade80',
+  },
+  coverPlayingText: {
+    color: '#4ade80',
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 1,
+  },
+  youtubeStreamWrapper: {
+    width: '100%',
+    height: 0,
+    overflow: 'hidden',
   },
   fullTitle: {
     color: COLORS.primary,
@@ -313,6 +446,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
+
+  // Verses card
   versesCard: {
     backgroundColor: COLORS.surfaceContainerLowest,
     borderRadius: RADIUS.lg,
