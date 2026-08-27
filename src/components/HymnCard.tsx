@@ -30,24 +30,19 @@ export const HymnCard: React.FC<HymnCardProps> = ({
       <View style={styles.leftRow}>
         <View style={[styles.numberBadge, isPlaying && styles.playingBadge]}>
           <Text style={[styles.numberText, isPlaying && styles.playingNumberText]}>
-            #{hymn.number}
+            {hymn.number}
           </Text>
         </View>
 
         <View style={styles.infoWrapper}>
-          <View style={styles.titleRow}>
-            <Text style={styles.title} numberOfLines={1}>
-              {hymn.title}
-            </Text>
-          </View>
+          <Text style={styles.title} numberOfLines={1}>
+            {hymn.title}
+          </Text>
           {hymn.composer ? (
             <Text style={styles.composer} numberOfLines={1}>
               {hymn.composer}
             </Text>
           ) : null}
-          <View style={styles.categoryTag}>
-            <Text style={styles.categoryText}>{hymn.category}</Text>
-          </View>
         </View>
       </View>
 
@@ -60,18 +55,7 @@ export const HymnCard: React.FC<HymnCardProps> = ({
           <Ionicons
             name={isFavorite ? 'heart' : 'heart-outline'}
             size={22}
-            color={isFavorite ? COLORS.error : COLORS.outline}
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.playBtn, isPlaying && styles.activePlayBtn]}
-          onPress={onPlayPress}
-        >
-          <Ionicons
-            name={isPlaying ? 'pause' : 'play'}
-            size={18}
-            color={isPlaying ? COLORS.white : COLORS.primary}
+            color={isFavorite ? COLORS.primary : COLORS.onSurfaceVariant}
           />
         </TouchableOpacity>
       </View>
@@ -84,17 +68,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.surfaceContainerLowest,
-    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.lg,
     padding: SPACING.md,
     marginBottom: SPACING.sm,
     borderWidth: 1,
-    borderColor: COLORS.surfaceVariant,
-    ...SHADOWS.card,
+    borderColor: '#E2E8F0',
   },
   playingCard: {
     borderColor: COLORS.primary,
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: '#F8FAFC',
   },
   leftRow: {
     flexDirection: 'row',
@@ -103,10 +86,10 @@ const styles = StyleSheet.create({
     marginRight: SPACING.sm,
   },
   numberBadge: {
-    width: 44,
-    height: 44,
-    borderRadius: RADIUS.md,
-    backgroundColor: COLORS.secondaryContainer,
+    width: 50,
+    height: 50,
+    borderRadius: RADIUS.sm,
+    backgroundColor: '#EAE8E4',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: SPACING.md,
@@ -115,8 +98,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
   },
   numberText: {
-    color: COLORS.onSecondaryContainer,
-    fontSize: 14,
+    color: COLORS.onSurface,
+    fontSize: 20,
     fontWeight: '800',
   },
   playingNumberText: {
@@ -124,53 +107,23 @@ const styles = StyleSheet.create({
   },
   infoWrapper: {
     flex: 1,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    justifyContent: 'center',
   },
   title: {
     color: COLORS.onSurface,
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '700',
-    marginBottom: 2,
-  },
-  composer: {
-    color: COLORS.secondary,
-    fontSize: 12,
     marginBottom: 4,
   },
-  categoryTag: {
-    alignSelf: 'flex-start',
-    backgroundColor: COLORS.primaryFixed,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: RADIUS.sm,
-  },
-  categoryText: {
-    color: COLORS.onPrimaryFixedVariant,
-    fontSize: 10,
-    fontWeight: '600',
+  composer: {
+    color: COLORS.onSurfaceVariant,
+    fontSize: 14,
   },
   actionsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
   },
   actionBtn: {
-    padding: 6,
-  },
-  playBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: RADIUS.full,
-    backgroundColor: COLORS.surfaceContainerLow,
-    borderWidth: 1,
-    borderColor: COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activePlayBtn: {
-    backgroundColor: COLORS.primary,
+    padding: 8,
   },
 });

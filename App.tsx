@@ -35,6 +35,9 @@ import { PrayerScreen } from './src/screens/PrayerScreen';
 import { MyContributionsScreen } from './src/screens/MyContributionsScreen';
 import { MyFundraisersScreen } from './src/screens/MyFundraisersScreen';
 import { CreateFundraiserScreen } from './src/screens/CreateFundraiserScreen';
+import { PersonalInfoScreen } from './src/screens/PersonalInfoScreen';
+import { NotificationsSettingsScreen } from './src/screens/NotificationsSettingsScreen';
+import { HelpSupportScreen } from './src/screens/HelpSupportScreen';
 
 import { COLORS, RADIUS, SHADOWS } from './src/theme/theme';
 
@@ -56,6 +59,7 @@ export default function App() {
   const [currentTab, setCurrentTab] = useState<
     | 'Home'
     | 'Explore'
+    | 'Explore_Community'
     | 'Churches'
     | 'Prayer'
     | 'Profile'
@@ -66,6 +70,9 @@ export default function App() {
     | 'MyContributions'
     | 'MyFundraisers'
     | 'CreateFundraiser'
+    | 'PersonalInfo'
+    | 'NotificationsSettings'
+    | 'HelpSupport'
   >('Home');
 
   // Navigation History Stack for top-left Back button
@@ -97,13 +104,15 @@ export default function App() {
       case 'Home':
         return <HomeScreen onNavigate={navigateTo} />;
       case 'Explore':
-        return <ExploreScreen onNavigate={navigateTo} />;
+        return <ExploreScreen onNavigate={navigateTo} initialSubScreen="explore" />;
+      case 'Explore_Community':
+        return <ExploreScreen onNavigate={navigateTo} initialSubScreen="community" />;
       case 'Churches':
         return <TemplesScreen onBack={popScreen} />;
       case 'Prayer':
         return <PrayerScreen onNavigate={navigateTo} />;
       case 'Hymns':
-        return <HymnsScreen />;
+        return <HymnsScreen onBack={popScreen} />;
       case 'Profile':
         return (
           <ProfileScreen
@@ -133,6 +142,12 @@ export default function App() {
             onViewMyFundraisers={() => navigateTo('MyFundraisers')}
           />
         );
+      case 'PersonalInfo':
+        return <PersonalInfoScreen onBack={popScreen} />;
+      case 'NotificationsSettings':
+        return <NotificationsSettingsScreen onBack={popScreen} />;
+      case 'HelpSupport':
+        return <HelpSupportScreen onBack={popScreen} />;
       default:
         return <HomeScreen onNavigate={navigateTo} />;
     }
@@ -225,19 +240,19 @@ export default function App() {
 
               {/* 2. Explore */}
               <TouchableOpacity
-                style={[styles.tabItem, currentTab === 'Explore' && styles.activeTabItem]}
+                style={[styles.tabItem, currentTab.startsWith('Explore') && styles.activeTabItem]}
                 onPress={() => navigateTo('Explore')}
                 activeOpacity={0.7}
               >
                 <Ionicons
-                  name={currentTab === 'Explore' ? 'compass' : 'compass-outline'}
+                  name={currentTab.startsWith('Explore') ? 'compass' : 'compass-outline'}
                   size={22}
-                  color={currentTab === 'Explore' ? COLORS.white : COLORS.onSurfaceVariant}
+                  color={currentTab.startsWith('Explore') ? COLORS.white : COLORS.onSurfaceVariant}
                 />
                 <Text
                   style={[
                     styles.tabLabel,
-                    currentTab === 'Explore' && styles.activeTabLabel,
+                    currentTab.startsWith('Explore') && styles.activeTabLabel,
                   ]}
                 >
                   Explore

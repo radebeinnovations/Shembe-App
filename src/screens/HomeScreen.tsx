@@ -82,8 +82,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
             onPress={() => onNavigate('Hymns')}
             activeOpacity={0.8}
           >
-            <View style={[styles.iconCircle, { backgroundColor: '#fef3c7' }]}>
-              <MaterialCommunityIcons name="book-open-variant" size={24} color="#735c00" />
+            <View style={[styles.iconCircle, { backgroundColor: '#FFF7E6' }]}>
+              <MaterialCommunityIcons name="book-open" size={24} color="#745c00" />
             </View>
             <Text style={styles.bentoCardTitle}>Hymns</Text>
           </TouchableOpacity>
@@ -94,8 +94,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
             onPress={() => onNavigate('Sermons')}
             activeOpacity={0.8}
           >
-            <View style={[styles.iconCircle, { backgroundColor: '#fef3c7' }]}>
-              <MaterialCommunityIcons name="bullhorn-outline" size={24} color="#735c00" />
+            <View style={[styles.iconCircle, { backgroundColor: '#FFF7E6' }]}>
+              <MaterialCommunityIcons name="bullhorn" size={24} color="#745c00" />
             </View>
             <Text style={styles.bentoCardTitle}>Sermons</Text>
           </TouchableOpacity>
@@ -106,8 +106,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
             onPress={() => onNavigate('Prayer')}
             activeOpacity={0.8}
           >
-            <View style={[styles.iconCircle, { backgroundColor: '#e0f2f1' }]}>
-              <FontAwesome5 name="pray" size={22} color="#012d1d" />
+            <View style={[styles.iconCircle, { backgroundColor: '#F0FDF4' }]}>
+              <MaterialCommunityIcons name="hands-pray" size={26} color="#063E27" />
             </View>
             <Text style={styles.bentoCardTitle}>Prayer</Text>
           </TouchableOpacity>
@@ -118,8 +118,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
             onPress={() => onNavigate('Hymns')}
             activeOpacity={0.8}
           >
-            <View style={[styles.iconCircle, { backgroundColor: '#efeeea' }]}>
-              <MaterialCommunityIcons name="book-open-page-variant" size={24} color="#414844" />
+            <View style={[styles.iconCircle, { backgroundColor: '#F1F5F9' }]}>
+              <Ionicons name="book" size={22} color="#475569" />
             </View>
             <Text style={styles.bentoCardTitle}>Scriptures</Text>
           </TouchableOpacity>
@@ -130,8 +130,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
             onPress={() => onNavigate('Offerings')}
             activeOpacity={0.8}
           >
-            <View style={[styles.iconCircle, { backgroundColor: '#fed65b' }]}>
-              <FontAwesome5 name="hand-holding-heart" size={22} color="#745c00" />
+            <View style={[styles.iconCircle, { backgroundColor: '#FDE68A' }]}>
+              <MaterialCommunityIcons name="hand-heart" size={24} color="#745c00" />
             </View>
             <Text style={styles.bentoCardTitle}>Give</Text>
           </TouchableOpacity>
@@ -139,11 +139,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
           {/* 6. Community */}
           <TouchableOpacity
             style={styles.bentoCard}
-            onPress={() => onNavigate('Explore')}
+            onPress={() => onNavigate('Explore_Community')}
             activeOpacity={0.8}
           >
-            <View style={[styles.iconCircle, { backgroundColor: '#efeeea' }]}>
-              <MaterialCommunityIcons name="account-group" size={24} color="#414844" />
+            <View style={[styles.iconCircle, { backgroundColor: '#F1F5F9' }]}>
+              <MaterialCommunityIcons name="account-group" size={26} color="#475569" />
             </View>
             <Text style={styles.bentoCardTitle}>Community</Text>
           </TouchableOpacity>

@@ -15,11 +15,19 @@ import { CreateFundraiserScreen } from './CreateFundraiserScreen';
 
 interface ExploreScreenProps {
   onNavigate: (screen: string) => void;
+  initialSubScreen?: 'explore' | 'community' | 'detail' | 'create';
 }
 
-export const ExploreScreen: React.FC<ExploreScreenProps> = ({ onNavigate }) => {
-  const [subScreen, setSubScreen] = useState<'explore' | 'community' | 'detail' | 'create'>('explore');
+export const ExploreScreen: React.FC<ExploreScreenProps> = ({ 
+  onNavigate, 
+  initialSubScreen = 'explore' 
+}) => {
+  const [subScreen, setSubScreen] = useState<'explore' | 'community' | 'detail' | 'create'>(initialSubScreen);
   const [selectedFundraiser, setSelectedFundraiser] = useState<FundraiserItem | null>(null);
+
+  React.useEffect(() => {
+    setSubScreen(initialSubScreen);
+  }, [initialSubScreen]);
 
   if (subScreen === 'community') {
     return (
@@ -72,29 +80,7 @@ export const ExploreScreen: React.FC<ExploreScreenProps> = ({ onNavigate }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Community Support Hero Banner */}
-      <TouchableOpacity
-        style={styles.communityBanner}
-        onPress={() => setSubScreen('community')}
-        activeOpacity={0.88}
-      >
-        <Image
-          source={require('../../assets/onboarding4_pray_give.png')}
-          style={styles.communityBannerImage}
-          resizeMode="cover"
-        />
-        <View style={styles.bannerOverlay} />
-        <View style={styles.bannerTextContent}>
-          <View style={styles.bannerBadge}>
-            <Ionicons name="heart" size={12} color={COLORS.white} />
-            <Text style={styles.bannerBadgeText}>COMMUNITY SUPPORT</Text>
-          </View>
-          <Text style={styles.bannerTitle}>Support Approved Causes & Needs</Text>
-          <Text style={styles.bannerSubtitle}>
-            Help repair sanctuaries, fund youth education & support widows.
-          </Text>
-        </View>
-      </TouchableOpacity>
+      {/* We no longer have the hero banner at the top in the new design */}
 
       {/* 1. Worship Category */}
       <View style={styles.section}>
@@ -146,61 +132,68 @@ export const ExploreScreen: React.FC<ExploreScreenProps> = ({ onNavigate }) => {
         </View>
       </View>
 
-      {/* 2. Pilgrimage Category */}
+      {/* 2. Spiritual Growth */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Pilgrimage</Text>
-        <TouchableOpacity
-          style={styles.pilgrimageCard}
-          onPress={() => onNavigate('Pilgrimage')}
-          activeOpacity={0.85}
-        >
-          <View style={styles.pilgrimageImageContainer}>
+        <Text style={styles.sectionTitle}>Spiritual Growth</Text>
+        <View style={styles.spiritualGrid}>
+          {/* Left Column (Bible) */}
+          <TouchableOpacity style={styles.bibleCard} activeOpacity={0.85}>
             <Image
               source={require('../../assets/bible_cover.png')}
-              style={styles.pilgrimageImage}
-              resizeMode="cover"
+              style={styles.bibleImage}
             />
-          </View>
-          <View style={styles.pilgrimageContent}>
-            <Ionicons name="compass-outline" size={20} color={COLORS.primary} style={styles.cardIcon} />
-            <Text style={styles.cardTitle}>Sacred Journeys</Text>
-            <Text style={styles.cardSubtitle} numberOfLines={2}>
-              Holy pilgrimage trails, rest stops, and holy mountain guides.
-            </Text>
-          </View>
-        </TouchableOpacity>
-      </View>
-
-      {/* 3. Give & Support Category */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Give & Support</Text>
-        <View style={styles.giveStack}>
-          {/* Community Support Link */}
-          <TouchableOpacity
-            style={styles.giveCard}
-            onPress={() => setSubScreen('community')}
-            activeOpacity={0.85}
-          >
-            <Ionicons name="heart-outline" size={24} color={COLORS.primary} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.giveCardTitle}>Community Support</Text>
-              <Text style={styles.giveCardSubtitle}>Support verified parish initiatives & fundraisers.</Text>
+            <View style={styles.bibleContent}>
+              <Ionicons name="book" size={20} color={COLORS.primary} style={styles.cardIcon} />
+              <Text style={styles.cardTitle}>Bible</Text>
+              <Text style={styles.cardSubtitle}>Daily readings and scripture study.</Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color={COLORS.onSurfaceVariant} />
           </TouchableOpacity>
 
-          {/* Digital Offerings Link */}
-          <TouchableOpacity
-            style={styles.giveCard}
-            onPress={() => onNavigate('Offerings')}
-            activeOpacity={0.85}
-          >
-            <Ionicons name="wallet-outline" size={24} color={COLORS.primary} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.giveCardTitle}>Digital Offerings</Text>
-              <Text style={styles.giveCardSubtitle}>Tithes, Intekelo kaSabatha & Ukundlondlobeza.</Text>
+          {/* Right Column */}
+          <View style={styles.spiritualRightCol}>
+            {/* Teachings */}
+            <TouchableOpacity style={styles.teachingsCard} activeOpacity={0.85}>
+              <Ionicons name="bulb-outline" size={20} color={COLORS.primary} style={styles.cardIcon} />
+              <Text style={styles.cardTitle}>Shembe Teachings</Text>
+            </TouchableOpacity>
+
+            {/* Inspiration */}
+            <TouchableOpacity style={[styles.teachingsCard, styles.inspirationCard]} activeOpacity={0.85}>
+              <Ionicons name="heart-outline" size={20} color="#745c00" style={styles.cardIcon} />
+              <Text style={[styles.cardTitle, { color: '#745c00' }]}>Inspiration</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+
+      {/* 3. Community */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Community</Text>
+        <View style={styles.worshipStack}>
+          {/* Events */}
+          <TouchableOpacity style={styles.actionCard} activeOpacity={0.85}>
+            <View style={[styles.actionIconBox, { backgroundColor: '#F1F5F9' }]}>
+              <Ionicons name="calendar-outline" size={24} color={COLORS.primary} />
             </View>
-            <Ionicons name="chevron-forward" size={18} color={COLORS.onSurfaceVariant} />
+            <View style={styles.actionContent}>
+              <Text style={styles.actionTitle}>Events</Text>
+              <Text style={styles.actionSubtitle}>Gatherings, festivals, and key dates.</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* Support */}
+          <TouchableOpacity 
+            style={styles.actionCard} 
+            activeOpacity={0.85}
+            onPress={() => setSubScreen('community')}
+          >
+            <View style={[styles.actionIconBox, { backgroundColor: '#FEF3C7' }]}>
+              <Ionicons name="hand-left-outline" size={24} color="#745c00" />
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={styles.actionTitle}>Support</Text>
+              <Text style={styles.actionSubtitle}>Community outreach and fundraising.</Text>
+            </View>
           </TouchableOpacity>
         </View>
       </View>
@@ -251,54 +244,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  communityBanner: {
-    width: '100%',
-    height: 160,
-    borderRadius: RADIUS.lg,
-    overflow: 'hidden',
-    position: 'relative',
-    ...SHADOWS.card,
-  },
-  communityBannerImage: {
-    width: '100%',
-    height: '100%',
-  },
-  bannerOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(1, 45, 29, 0.65)',
-  },
-  bannerTextContent: {
-    position: 'absolute',
-    bottom: 14,
-    left: 16,
-    right: 16,
-    gap: 4,
-  },
-  bannerBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: COLORS.primaryContainer,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: RADIUS.sm,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  bannerBadgeText: {
-    color: COLORS.white,
-    fontSize: 9,
-    fontWeight: '800',
-    letterSpacing: 0.8,
-  },
-  bannerTitle: {
-    color: COLORS.white,
-    fontSize: 18,
-    fontWeight: '800',
-  },
-  bannerSubtitle: {
-    color: 'rgba(255, 255, 255, 0.85)',
-    fontSize: 12,
-  },
   section: {
     gap: SPACING.sm,
   },
@@ -311,42 +256,37 @@ const styles = StyleSheet.create({
     gap: SPACING.md,
   },
   worshipCard: {
-    backgroundColor: COLORS.surfaceContainerLowest,
+    flexDirection: 'row',
+    backgroundColor: COLORS.white,
     borderRadius: RADIUS.lg,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
-    ...SHADOWS.card,
+    borderColor: '#E2E8F0',
   },
   worshipImageContainer: {
-    height: 140,
-    width: '100%',
+    width: 120,
+    height: '100%',
   },
   worshipImage: {
     width: '100%',
     height: '100%',
   },
   worshipContent: {
+    flex: 1,
     padding: SPACING.md,
+    justifyContent: 'center',
   },
   cardIcon: {
-    marginBottom: 4,
+    marginBottom: SPACING.xs,
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '800',
-    color: COLORS.onSurface,
+    fontWeight: '700',
+    color: COLORS.primary,
   },
   cardSubtitle: {
     fontSize: 13,
     color: COLORS.onSurfaceVariant,
-    marginTop: 2,
-  },
-  pilgrimageCard: {
-    backgroundColor: COLORS.surfaceContainerLowest,
-    borderRadius: RADIUS.lg,
-    overflow: 'hidden',
-    borderWidth: 1,
     borderColor: COLORS.outlineVariant,
     ...SHADOWS.card,
   },
@@ -358,31 +298,70 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  pilgrimageContent: {
+  spiritualGrid: {
+    flexDirection: 'row',
+    gap: SPACING.md,
+  },
+  bibleCard: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.lg,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  bibleImage: {
+    width: '100%',
+    height: 120,
+  },
+  bibleContent: {
     padding: SPACING.md,
   },
-  giveStack: {
-    gap: 10,
+  spiritualRightCol: {
+    flex: 1,
+    gap: SPACING.md,
   },
-  giveCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: COLORS.surfaceContainerLowest,
+  teachingsCard: {
+    flex: 1,
+    backgroundColor: COLORS.white,
     borderRadius: RADIUS.lg,
     padding: SPACING.md,
+    justifyContent: 'center',
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
-    ...SHADOWS.card,
+    borderColor: '#E2E8F0',
   },
-  giveCardTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: COLORS.onSurface,
+  inspirationCard: {
+    backgroundColor: '#FDE68A',
+    borderColor: '#FCD34D',
   },
-  giveCardSubtitle: {
-    fontSize: 12,
+  actionCard: {
+    flexDirection: 'row',
+    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  actionIconBox: {
+    width: 50,
+    height: 50,
+    borderRadius: RADIUS.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: SPACING.md,
+  },
+  actionContent: {
+    flex: 1,
+  },
+  actionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: COLORS.primary,
+    marginBottom: 2,
+  },
+  actionSubtitle: {
+    fontSize: 13,
     color: COLORS.onSurfaceVariant,
-    marginTop: 2,
   },
 });

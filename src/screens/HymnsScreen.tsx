@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
   FlatList,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { HymnCard } from '../components/HymnCard';
@@ -19,7 +20,11 @@ import { HymnSearchScreen } from './HymnSearchScreen';
 import { HymnPlayerScreen } from './HymnPlayerScreen';
 import { DownloadedHymnsScreen } from './DownloadedHymnsScreen';
 
-export const HymnsScreen: React.FC = () => {
+interface HymnsScreenProps {
+  onBack?: () => void;
+}
+
+export const HymnsScreen: React.FC<HymnsScreenProps> = ({ onBack }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [activeSubScreen, setActiveSubScreen] = useState<'main' | 'search' | 'player' | 'downloaded'>('main');
@@ -27,7 +32,7 @@ export const HymnsScreen: React.FC = () => {
   const { playHymn, activeTrack, isPlaying } = useAudio();
   const { isFavoriteHymn, toggleFavoriteHymn } = useBookmarks();
 
-  const categories = ['All', 'Isihlabelelo', 'Imthandazo', 'Isiphetho', 'Inhlokomo', 'Favorites'];
+  const categories = ['All', 'Recent', 'Favourites', 'Offline'];
 
   const filteredHymns = useMemo(() => {
     return MOCK_HYMNS.filter((hymn) => {
@@ -87,18 +92,15 @@ export const HymnsScreen: React.FC = () => {
       {/* Search Header */}
       <View style={styles.headerSection}>
         <View style={styles.titleRow}>
+          {onBack && (
+            <TouchableOpacity onPress={onBack} style={styles.backBtn} activeOpacity={0.7}>
+              <Ionicons name="arrow-back" size={24} color={COLORS.onSurfaceVariant} />
+            </TouchableOpacity>
+          )}
           <View style={{ flex: 1 }}>
-            <Text style={styles.screenTitle}>Izihlabelelo zamaNazaretha</Text>
-            <Text style={styles.screenSubtitle}>Digital Hymnbook & Audio Playback</Text>
+            <Text style={styles.screenTitle}>Hymn Library</Text>
+            <Text style={styles.screenSubtitle}>Search by number, title, or lyrics to find your hymn.</Text>
           </View>
-
-          <TouchableOpacity
-            style={styles.headerIconBtn}
-            onPress={() => setActiveSubScreen('downloaded')}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="cloud-download-outline" size={20} color={COLORS.primary} />
-          </TouchableOpacity>
         </View>
 
         {/* Search Input Bar */}
@@ -107,11 +109,8 @@ export const HymnsScreen: React.FC = () => {
           onPress={() => setActiveSubScreen('search')}
           activeOpacity={0.9}
         >
-          <Ionicons name="search" size={20} color={COLORS.primary} />
-          <Text style={styles.searchPlaceholder}>Search by hymn #, title, or isiZulu words...</Text>
-          <View style={styles.filterChip}>
-            <Ionicons name="options-outline" size={16} color={COLORS.onSurfaceVariant} />
-          </View>
+          <Ionicons name="search" size={20} color={COLORS.onSurfaceVariant} />
+          <Text style={styles.searchPlaceholder}>e.g., 142 or 'Amazing Grace'</Text>
         </TouchableOpacity>
 
         {/* Category Pills */}
@@ -169,28 +168,32 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
   },
   headerSection: {
-    backgroundColor: COLORS.surfaceContainerLowest,
-    paddingHorizontal: SPACING.md,
-    paddingTop: SPACING.md,
-    paddingBottom: SPACING.xs,
+    padding: SPACING.md,
+    backgroundColor: COLORS.surface,
+    paddingTop: Platform.OS === 'ios' ? 60 : SPACING.md,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.surfaceVariant,
+    borderBottomColor: '#F1F5F9',
   },
   titleRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: SPACING.sm,
+    alignItems: 'center',
+    marginBottom: SPACING.md,
+  },
+  backBtn: {
+    marginRight: SPACING.sm,
+    padding: SPACING.xs,
   },
   screenTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: COLORS.primary,
+    fontSize: 28,
+    fontWeight: '900',
+    color: '#1E293B',
   },
   screenSubtitle: {
-    fontSize: 12,
-    color: COLORS.onSurfaceVariant,
-    marginTop: 2,
+    fontSize: 15,
+    color: '#475569',
+    marginTop: 6,
+    lineHeight: 22,
   },
   headerIconBtn: {
     width: 38,
@@ -203,18 +206,18 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 48,
-    backgroundColor: COLORS.surfaceContainerHigh,
-    borderRadius: RADIUS.full,
+    height: 50,
+    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.md,
     paddingHorizontal: SPACING.md,
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.md,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: '#E2E8F0',
   },
   searchPlaceholder: {
     flex: 1,
-    color: COLORS.outline,
-    fontSize: 13,
+    color: '#64748B',
+    fontSize: 14,
     marginLeft: 8,
   },
   filterChip: {
@@ -224,25 +227,22 @@ const styles = StyleSheet.create({
     marginVertical: SPACING.xs,
   },
   pillsContent: {
-    gap: 8,
+    gap: 10,
     paddingBottom: 4,
   },
   pill: {
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: RADIUS.full,
-    backgroundColor: COLORS.surfaceContainerLow,
-    borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    backgroundColor: '#EAE8E4',
   },
   activePill: {
-    backgroundColor: COLORS.primaryContainer,
-    borderColor: COLORS.primaryContainer,
+    backgroundColor: '#06402B',
   },
   pillText: {
-    fontSize: 12,
-    color: COLORS.onSurfaceVariant,
-    fontWeight: '600',
+    fontSize: 13,
+    color: '#1E293B',
+    fontWeight: '700',
   },
   activePillText: {
     color: COLORS.white,

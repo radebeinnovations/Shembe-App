@@ -263,7 +263,7 @@ The harmony in choir singing builds a shared sanctuary of spirit.`,
           {/* Personal Info */}
           <TouchableOpacity
             style={styles.accountRow}
-            onPress={() => Alert.alert('Personal Info', 'Sipho Mkhize • +27 82 555 0192')}
+            onPress={() => onNavigate && onNavigate('PersonalInfo')}
             activeOpacity={0.85}
           >
             <View style={styles.accountRowLeft}>
@@ -278,7 +278,7 @@ The harmony in choir singing builds a shared sanctuary of spirit.`,
           {/* Notifications */}
           <TouchableOpacity
             style={styles.accountRow}
-            onPress={() => Alert.alert('Notifications', 'Push notifications enabled.')}
+            onPress={() => onNavigate && onNavigate('NotificationsSettings')}
             activeOpacity={0.85}
           >
             <View style={styles.accountRowLeft}>
@@ -293,7 +293,7 @@ The harmony in choir singing builds a shared sanctuary of spirit.`,
           {/* Help & Support */}
           <TouchableOpacity
             style={styles.accountRow}
-            onPress={() => Alert.alert('Help & Support', 'Contacting Shembe App Support')}
+            onPress={() => onNavigate && onNavigate('HelpSupport')}
             activeOpacity={0.85}
           >
             <View style={styles.accountRowLeft}>
