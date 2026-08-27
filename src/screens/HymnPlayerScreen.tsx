@@ -10,6 +10,7 @@ import {
   Platform,
   LayoutChangeEvent,
 } from 'react-native';
+import Slider from '@react-native-community/slider';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '../theme/theme';
 import { useAudio } from '../context/AudioContext';
@@ -53,16 +54,6 @@ export const HymnPlayerScreen: React.FC<HymnPlayerScreenProps> = ({
   };
 
   const currentDuration = durationMillis > 0 ? durationMillis : 255000;
-  const progressPercent = Math.min(100, Math.max(0, (positionMillis / currentDuration) * 100));
-
-
-  const handleSeekTouch = (evt: any) => {
-    if (!currentDuration) return;
-    const touchX = evt.nativeEvent.locationX;
-    const newPercent = Math.min(1, Math.max(0, touchX / barWidth));
-    const targetMs = Math.floor(newPercent * currentDuration);
-    seekTo(targetMs);
-  };
 
   const handleRewind15 = () => {
     const newPos = Math.max(0, positionMillis - 15000);
@@ -152,15 +143,16 @@ export const HymnPlayerScreen: React.FC<HymnPlayerScreenProps> = ({
 
         {/* Seek Bar & Timestamps */}
         <View style={styles.progressSection}>
-          <TouchableOpacity
-            style={styles.seekBarBg}
-            onPress={handleSeekTouch}
-            onLayout={(e: LayoutChangeEvent) => setBarWidth(e.nativeEvent.layout.width)}
-            activeOpacity={0.9}
-          >
-            <View style={[styles.seekBarFill, { width: `${progressPercent}%` }]} />
-            <View style={[styles.seekBarThumb, { left: `${progressPercent}%` }]} />
-          </TouchableOpacity>
+          <Slider
+            style={{ width: '100%', height: 40 }}
+            minimumValue={0}
+            maximumValue={currentDuration}
+            value={positionMillis}
+            minimumTrackTintColor={COLORS.primary}
+            maximumTrackTintColor={COLORS.surfaceContainerHigh}
+            thumbTintColor={COLORS.primary}
+            onSlidingComplete={(value) => seekTo(value)}
+          />
 
           <View style={styles.timeRow}>
             <Text style={styles.timeText}>{formatTime(positionMillis)}</Text>
