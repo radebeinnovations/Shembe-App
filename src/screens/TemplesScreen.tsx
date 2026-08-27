@@ -312,18 +312,20 @@ export const TemplesScreen: React.FC<TemplesScreenProps> = ({ onBack }) => {
       </View>
 
       {/* Dynamic User Location Banner Bar */}
-      <TouchableOpacity
-        style={styles.userLocationBar}
-        onPress={() => setShowLocationPicker(true)}
-        activeOpacity={0.8}
-      >
-        <Ionicons name="navigate-circle" size={20} color={COLORS.primary} />
-        <View style={styles.userLocationTextContainer}>
-          <Text style={styles.userLocationLabel}>YOUR LOCATION (REAL-TIME RECALCULATION)</Text>
-          <Text style={styles.userLocationValue}>{userLocation.name}</Text>
-        </View>
-        <Ionicons name="chevron-down" size={18} color={COLORS.onSurfaceVariant} />
-      </TouchableOpacity>
+      <View style={{ paddingHorizontal: SPACING.md, paddingTop: SPACING.md }}>
+        <TouchableOpacity
+          style={styles.userLocationBar}
+          onPress={() => setShowLocationPicker(true)}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="location" size={24} color={COLORS.primary} />
+          <View style={styles.userLocationTextContainer}>
+            <Text style={styles.userLocationLabel}>CURRENT LOCATION</Text>
+            <Text style={styles.userLocationValue}>{userLocation.name}</Text>
+          </View>
+          <Text style={{ fontSize: 13, fontWeight: '800', color: COLORS.primary }}>Change</Text>
+        </TouchableOpacity>
+      </View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Search & Filter Bar */}
@@ -619,24 +621,28 @@ const styles = StyleSheet.create({
   userLocationBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.primaryContainer,
+    backgroundColor: COLORS.white,
     paddingHorizontal: SPACING.md,
-    paddingVertical: 10,
-    gap: 10,
+    paddingVertical: 12,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    gap: 12,
   },
   userLocationTextContainer: {
     flex: 1,
   },
   userLocationLabel: {
-    color: COLORS.white,
-    fontSize: 9,
+    color: '#64748B',
+    fontSize: 10,
     fontWeight: '800',
     letterSpacing: 0.5,
   },
   userLocationValue: {
-    color: COLORS.white,
-    fontSize: 14,
+    color: '#1E293B',
+    fontSize: 15,
     fontWeight: '800',
+    marginTop: 2,
   },
   scrollView: {
     flex: 1,
