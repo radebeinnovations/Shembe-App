@@ -137,7 +137,7 @@ export const ExploreScreen: React.FC<ExploreScreenProps> = ({
         <Text style={styles.sectionTitle}>Spiritual Growth</Text>
         <View style={styles.spiritualGrid}>
           {/* Left Column (Bible) */}
-          <TouchableOpacity style={styles.bibleCard} activeOpacity={0.85}>
+          <TouchableOpacity style={styles.bibleCard} activeOpacity={0.85} onPress={() => onNavigate('Bible')}>
             <Image
               source={require('../../assets/bible_cover.png')}
               style={styles.bibleImage}
@@ -152,13 +152,13 @@ export const ExploreScreen: React.FC<ExploreScreenProps> = ({
           {/* Right Column */}
           <View style={styles.spiritualRightCol}>
             {/* Teachings */}
-            <TouchableOpacity style={styles.teachingsCard} activeOpacity={0.85}>
+            <TouchableOpacity style={styles.teachingsCard} activeOpacity={0.85} onPress={() => onNavigate('Teachings')}>
               <Ionicons name="bulb-outline" size={20} color={COLORS.primary} style={styles.cardIcon} />
               <Text style={styles.cardTitle}>Shembe Teachings</Text>
             </TouchableOpacity>
 
             {/* Inspiration */}
-            <TouchableOpacity style={[styles.teachingsCard, styles.inspirationCard]} activeOpacity={0.85}>
+            <TouchableOpacity style={[styles.teachingsCard, styles.inspirationCard]} activeOpacity={0.85} onPress={() => onNavigate('Inspiration')}>
               <Ionicons name="heart-outline" size={20} color="#745c00" style={styles.cardIcon} />
               <Text style={[styles.cardTitle, { color: '#745c00' }]}>Inspiration</Text>
             </TouchableOpacity>
@@ -171,7 +171,7 @@ export const ExploreScreen: React.FC<ExploreScreenProps> = ({
         <Text style={styles.sectionTitle}>Community</Text>
         <View style={styles.worshipStack}>
           {/* Events */}
-          <TouchableOpacity style={styles.actionCard} activeOpacity={0.85}>
+          <TouchableOpacity style={styles.actionCard} activeOpacity={0.85} onPress={() => onNavigate('Events')}>
             <View style={[styles.actionIconBox, { backgroundColor: '#F1F5F9' }]}>
               <Ionicons name="calendar-outline" size={24} color={COLORS.primary} />
             </View>

@@ -38,6 +38,10 @@ import { CreateFundraiserScreen } from './src/screens/CreateFundraiserScreen';
 import { PersonalInfoScreen } from './src/screens/PersonalInfoScreen';
 import { NotificationsSettingsScreen } from './src/screens/NotificationsSettingsScreen';
 import { HelpSupportScreen } from './src/screens/HelpSupportScreen';
+import { EventsScreen } from './src/screens/EventsScreen';
+import { TeachingsScreen } from './src/screens/TeachingsScreen';
+import { BibleScreen } from './src/screens/BibleScreen';
+import { InspirationScreen } from './src/screens/InspirationScreen';
 
 import { COLORS, RADIUS, SHADOWS } from './src/theme/theme';
 
@@ -73,6 +77,10 @@ export default function App() {
     | 'PersonalInfo'
     | 'NotificationsSettings'
     | 'HelpSupport'
+    | 'Events'
+    | 'Teachings'
+    | 'Bible'
+    | 'Inspiration'
   >('Home');
 
   // Navigation History Stack for top-left Back button
@@ -148,6 +156,14 @@ export default function App() {
         return <NotificationsSettingsScreen onBack={popScreen} />;
       case 'HelpSupport':
         return <HelpSupportScreen onBack={popScreen} />;
+      case 'Events':
+        return <EventsScreen onBack={popScreen} />;
+      case 'Teachings':
+        return <TeachingsScreen onBack={popScreen} />;
+      case 'Bible':
+        return <BibleScreen onBack={popScreen} />;
+      case 'Inspiration':
+        return <InspirationScreen onBack={popScreen} />;
       default:
         return <HomeScreen onNavigate={navigateTo} />;
     }
