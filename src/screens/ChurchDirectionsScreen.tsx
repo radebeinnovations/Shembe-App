@@ -156,7 +156,7 @@ export const ChurchDirectionsScreen: React.FC<ChurchDirectionsScreenProps> = ({
             color={COLORS.white}
           />
           <Text style={styles.startNavBtnText}>
-            {isNavigating ? 'Navigating in Maps...' : 'Start Navigation'}
+            {isNavigating ? 'Navigating in Maps...' : 'Get Turn-by-Turn Directions'}
           </Text>
         </TouchableOpacity>
       </View>

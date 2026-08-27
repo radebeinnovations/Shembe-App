@@ -363,7 +363,7 @@ export const PrayerScreen: React.FC<PrayerScreenProps> = () => {
 
                   <View style={styles.typeTextGroup}>
                     <Text style={[styles.typeTitle, isSelected && styles.selectedTypeTitle]}>{type.title}</Text>
-                    <Text style={styles.typeSubtitle}>{type.subtitle}</Text>
+                    <Text style={[styles.typeSubtitle, isSelected && styles.selectedTypeSubtitle]}>{type.subtitle}</Text>
                   </View>
                 </TouchableOpacity>
               );
@@ -1098,8 +1098,10 @@ const styles = StyleSheet.create({
     ...SHADOWS.card,
   },
   selectedTypeCard: {
-    backgroundColor: COLORS.primaryContainer,
+    backgroundColor: '#f5f3ef',
     borderColor: COLORS.primaryContainer,
+    borderWidth: 2,
+    ...SHADOWS.card,
   },
   typeTopRow: {
     flexDirection: 'row',
@@ -1115,7 +1117,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   selectedTypeIconCircle: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primaryContainer,
   },
   radioOuterCircle: {
     width: 22,
@@ -1127,13 +1129,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   radioOuterSelected: {
-    borderColor: COLORS.white,
+    borderColor: COLORS.primaryContainer,
   },
   radioInnerDot: {
     width: 10,
     height: 10,
     borderRadius: RADIUS.full,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primaryContainer,
   },
   typeTextGroup: {
     gap: 4,
@@ -1144,12 +1146,15 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   selectedTypeTitle: {
-    color: COLORS.white,
+    color: COLORS.primary,
   },
   typeSubtitle: {
     color: COLORS.onSurfaceVariant,
     fontSize: 13,
     lineHeight: 18,
+  },
+  selectedTypeSubtitle: {
+    color: COLORS.onSurfaceVariant,
   },
   bottomCtaBar: {
     padding: SPACING.md,

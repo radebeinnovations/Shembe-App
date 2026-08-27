@@ -239,7 +239,7 @@ The harmony in choir singing builds a shared sanctuary of spirit.`,
           {/* Contributions Card - Full Width */}
           <TouchableOpacity
             style={styles.fullWidthCard}
-            onPress={() => (onNavigate ? onNavigate('Offerings') : Alert.alert('Contributions', 'Viewing giving history'))}
+            onPress={() => (onNavigate ? onNavigate('MyContributions') : Alert.alert('Contributions', 'Viewing giving history'))}
             activeOpacity={0.85}
           >
             <View style={styles.fullWidthLeft}>

@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Platform,
+  LayoutChangeEvent,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '../theme/theme';
@@ -22,30 +24,66 @@ export const HymnPlayerScreen: React.FC<HymnPlayerScreenProps> = ({
   onClose,
   onOpenDownloaded,
 }) => {
-  const { activeTrack, isPlaying, togglePlayPause, positionMillis, durationMillis } = useAudio();
+  const {
+    activeTrack,
+    isPlaying,
+    togglePlayPause,
+    positionMillis,
+    durationMillis,
+    seekTo,
+    playNextTrack,
+    playPrevTrack,
+  } = useAudio();
   const { isFavoriteHymn, toggleFavoriteHymn } = useBookmarks();
-  const [isDownloaded, setIsDownloaded] = useState(false);
 
-  const hymnTitle = activeTrack?.title || 'Hamba Nathi';
-  const hymnNumber = activeTrack?.number || 250;
+  const [isDownloaded, setIsDownloaded] = useState(false);
+  const [startSecs, setStartSecs] = useState<number>(0);
+  const [barWidth, setBarWidth] = useState(300);
+
+  const hymnTitle = activeTrack?.title || 'Nkosi Yami, Woza Kimina';
+  const hymnNumber = activeTrack?.number || 1;
   const choirName = activeTrack?.subtitle || 'Ebuhleni Choir';
   const isFav = activeTrack ? isFavoriteHymn(activeTrack.id) : false;
 
   const formatTime = (ms: number) => {
+    if (!ms || isNaN(ms)) return '0:00';
     const totalSeconds = Math.floor(ms / 1000);
     const mins = Math.floor(totalSeconds / 60);
     const secs = totalSeconds % 60;
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  const progressPercent = durationMillis > 0 ? (positionMillis / durationMillis) * 100 : 35;
+  const currentDuration = durationMillis > 0 ? durationMillis : 255000;
+  const progressPercent = Math.min(100, Math.max(0, (positionMillis / currentDuration) * 100));
+
+  const handleSeekTouch = (evt: any) => {
+    if (!currentDuration) return;
+    const touchX = evt.nativeEvent.locationX;
+    const newPercent = touchX / barWidth;
+    const targetMs = Math.floor(newPercent * currentDuration);
+    const targetSecs = Math.floor(targetMs / 1000);
+    setStartSecs(targetSecs);
+    seekTo(targetMs);
+  };
+
+  const handleRewind15 = () => {
+    const newPos = Math.max(0, positionMillis - 15000);
+    setStartSecs(Math.floor(newPos / 1000));
+    seekTo(newPos);
+  };
+
+  const handleFastForward15 = () => {
+    const newPos = Math.min(currentDuration, positionMillis + 15000);
+    setStartSecs(Math.floor(newPos / 1000));
+    seekTo(newPos);
+  };
 
   const handleDownloadToggle = () => {
     setIsDownloaded(!isDownloaded);
     Alert.alert(
       !isDownloaded ? 'Downloaded Offline 📥' : 'Download Removed 🗑️',
       !isDownloaded
-        ? `${hymnTitle} (Hymn ${hymnNumber}) has been saved for offline audio playback!`
+        ? `${hymnTitle} (Hymn ${hymnNumber}) saved for offline playback!`
         : `${hymnTitle} removed from offline storage.`
     );
   };
@@ -56,9 +94,21 @@ export const HymnPlayerScreen: React.FC<HymnPlayerScreenProps> = ({
 
   return (
     <View style={styles.container}>
-      {/* Top Header */}
+      {/* Hidden YouTube Audio Stream Player (Invisible, plays real YouTube audio in background) */}
+      {activeTrack?.youtubeId && isPlaying && Platform.OS === 'web' && (
+        <View style={styles.hiddenAudioStreamContainer}>
+          <iframe
+            key={`${activeTrack.youtubeId}-${startSecs}`}
+            src={`https://www.youtube.com/embed/${activeTrack.youtubeId}?autoplay=1${startSecs > 0 ? `&start=${startSecs}` : ''}`}
+            style={{ width: '100%', height: '100%', border: 0 }}
+            allow="autoplay; encrypted-media"
+          />
+        </View>
+      )}
+
+      {/* Top Header - Restored Clean Stitch Design */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.headerBtn} onPress={onClose}>
+        <TouchableOpacity style={styles.headerBtn} onPress={onClose} activeOpacity={0.7}>
           <Ionicons name="chevron-down" size={28} color={COLORS.primary} />
         </TouchableOpacity>
 
@@ -69,13 +119,14 @@ export const HymnPlayerScreen: React.FC<HymnPlayerScreenProps> = ({
         <TouchableOpacity
           style={styles.headerBtn}
           onPress={() => Alert.alert('Hymn Options', `${hymnTitle} - Hymn ${hymnNumber}`)}
+          activeOpacity={0.7}
         >
           <Ionicons name="ellipsis-vertical" size={22} color={COLORS.primary} />
         </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        {/* Landscape Hero Artwork Image */}
+        {/* Landscape Hero Artwork Image - Restored Original Prototype Format */}
         <View style={styles.artworkWrapper}>
           <Image
             source={require('../../assets/hymn_player_artwork.png')}
@@ -97,6 +148,7 @@ export const HymnPlayerScreen: React.FC<HymnPlayerScreenProps> = ({
           <TouchableOpacity
             style={styles.favBtn}
             onPress={() => activeTrack && toggleFavoriteHymn(activeTrack.id)}
+            activeOpacity={0.7}
           >
             <Ionicons
               name={isFav ? 'heart' : 'heart-outline'}
@@ -108,26 +160,35 @@ export const HymnPlayerScreen: React.FC<HymnPlayerScreenProps> = ({
 
         {/* Seek Bar & Timestamps */}
         <View style={styles.progressSection}>
-          <View style={styles.seekBarBg}>
+          <TouchableOpacity
+            style={styles.seekBarBg}
+            onPress={handleSeekTouch}
+            onLayout={(e: LayoutChangeEvent) => setBarWidth(e.nativeEvent.layout.width)}
+            activeOpacity={0.9}
+          >
             <View style={[styles.seekBarFill, { width: `${progressPercent}%` }]} />
-          </View>
+            <View style={[styles.seekBarThumb, { left: `${progressPercent}%` }]} />
+          </TouchableOpacity>
+
           <View style={styles.timeRow}>
-            <Text style={styles.timeText}>{formatTime(positionMillis || 102000)}</Text>
-            <Text style={styles.timeText}>{formatTime(durationMillis || 270000)}</Text>
+            <Text style={styles.timeText}>{formatTime(positionMillis)}</Text>
+            <Text style={styles.timeText}>{formatTime(currentDuration)}</Text>
           </View>
         </View>
 
         {/* Main Playback Controls */}
         <View style={styles.controlsRow}>
-          <TouchableOpacity style={styles.subControlBtn}>
-            <Ionicons name="shuffle" size={22} color={COLORS.onSurfaceVariant} />
+          {/* Rewind -15 Seconds */}
+          <TouchableOpacity style={styles.subControlBtn} onPress={handleRewind15} activeOpacity={0.7}>
+            <Ionicons name="refresh-circle-outline" size={26} color={COLORS.primary} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.skipBtn}>
+          {/* Previous Track (Hymn 140 -> Hymn 112 -> Hymn 89 -> etc) */}
+          <TouchableOpacity style={styles.skipBtn} onPress={playPrevTrack} activeOpacity={0.7}>
             <Ionicons name="play-skip-back" size={28} color={COLORS.primary} />
           </TouchableOpacity>
 
-          {/* Large Primary Play Button */}
+          {/* Large Primary Play / Pause Button */}
           <TouchableOpacity
             style={styles.mainPlayBtn}
             onPress={togglePlayPause}
@@ -140,18 +201,20 @@ export const HymnPlayerScreen: React.FC<HymnPlayerScreenProps> = ({
             />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.skipBtn}>
+          {/* Next Track (Hymn 1 -> Hymn 24 -> Hymn 55 -> Hymn 89 -> etc) */}
+          <TouchableOpacity style={styles.skipBtn} onPress={playNextTrack} activeOpacity={0.7}>
             <Ionicons name="play-skip-forward" size={28} color={COLORS.primary} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.subControlBtn}>
+          {/* Fast Forward +15 Seconds */}
+          <TouchableOpacity style={styles.subControlBtn} onPress={handleFastForward15} activeOpacity={0.7}>
             <Ionicons name="repeat" size={22} color={COLORS.onSurfaceVariant} />
           </TouchableOpacity>
         </View>
 
         {/* Secondary Actions Bar */}
         <View style={styles.actionsBar}>
-          <TouchableOpacity style={styles.actionItem} onPress={handleDownloadToggle}>
+          <TouchableOpacity style={styles.actionItem} onPress={handleDownloadToggle} activeOpacity={0.7}>
             <Ionicons
               name={isDownloaded ? 'checkmark-circle' : 'cloud-download-outline'}
               size={22}
@@ -160,7 +223,7 @@ export const HymnPlayerScreen: React.FC<HymnPlayerScreenProps> = ({
             <Text style={styles.actionText}>{isDownloaded ? 'Saved' : 'Download'}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionItem} onPress={handleShare}>
+          <TouchableOpacity style={styles.actionItem} onPress={handleShare} activeOpacity={0.7}>
             <Ionicons name="share-social-outline" size={22} color={COLORS.onSurfaceVariant} />
             <Text style={styles.actionText}>Share</Text>
           </TouchableOpacity>
@@ -168,11 +231,24 @@ export const HymnPlayerScreen: React.FC<HymnPlayerScreenProps> = ({
           <TouchableOpacity
             style={styles.actionItem}
             onPress={onOpenDownloaded || (() => Alert.alert('Playlist', 'Added to Sabbath Worship Playlist'))}
+            activeOpacity={0.7}
           >
             <Ionicons name="list-outline" size={22} color={COLORS.onSurfaceVariant} />
             <Text style={styles.actionText}>Playlist</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Full isiZulu Hymn Verses */}
+        {activeTrack?.verses && activeTrack.verses.length > 0 && (
+          <View style={styles.versesCard}>
+            <Text style={styles.versesHeader}>ISIZULU HYMN TEXT</Text>
+            {activeTrack.verses.map((verse, index) => (
+              <View key={index} style={styles.verseBlock}>
+                <Text style={styles.verseText}>{verse}</Text>
+              </View>
+            ))}
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -182,6 +258,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.surface,
+  },
+  hiddenAudioStreamContainer: {
+    position: 'absolute',
+    top: -9999,
+    left: -9999,
+    width: 1,
+    height: 1,
+    opacity: 0,
   },
   header: {
     height: 60,
@@ -204,26 +288,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerLabel: {
-    color: COLORS.onSurfaceVariant,
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '800',
+    color: COLORS.primary,
     letterSpacing: 1,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    padding: SPACING.lg,
-    alignItems: 'center',
+    padding: SPACING.md,
+    gap: SPACING.md,
+    paddingBottom: 40,
   },
   artworkWrapper: {
     width: '100%',
     height: 200,
-    borderRadius: RADIUS.lg,
+    borderRadius: RADIUS.xl,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: COLORS.surfaceVariant,
-    marginBottom: SPACING.lg,
+    backgroundColor: '#000',
     ...SHADOWS.card,
   },
   artworkImage: {
@@ -231,117 +314,145 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   trackInfoRow: {
-    width: '100%',
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: SPACING.lg,
+    paddingHorizontal: SPACING.xs,
   },
   trackInfoText: {
     flex: 1,
+    gap: 4,
   },
   hymnBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: COLORS.surfaceContainerHigh,
+    backgroundColor: COLORS.primaryFixed,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: RADIUS.sm,
-    marginBottom: 6,
   },
   hymnBadgeText: {
-    color: COLORS.onSurfaceVariant,
+    color: COLORS.primary,
     fontSize: 10,
     fontWeight: '800',
-    letterSpacing: 0.8,
   },
   trackTitle: {
+    fontSize: 20,
+    fontWeight: '900',
     color: COLORS.onSurface,
-    fontSize: 22,
-    fontWeight: '800',
   },
   trackSubtitle: {
+    fontSize: 13,
     color: COLORS.onSurfaceVariant,
-    fontSize: 14,
-    marginTop: 2,
+    fontWeight: '600',
   },
   favBtn: {
-    width: 48,
-    height: 48,
+    width: 44,
+    height: 44,
     borderRadius: RADIUS.full,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: COLORS.surfaceContainerLow,
   },
   progressSection: {
-    width: '100%',
-    marginBottom: SPACING.xl,
+    gap: 8,
+    paddingHorizontal: SPACING.xs,
   },
   seekBarBg: {
-    width: '100%',
-    height: 6,
-    backgroundColor: COLORS.surfaceContainerHigh,
+    height: 8,
+    backgroundColor: COLORS.surfaceContainerLow,
     borderRadius: RADIUS.full,
-    overflow: 'hidden',
+    position: 'relative',
+    justifyContent: 'center',
   },
   seekBarFill: {
     height: '100%',
     backgroundColor: COLORS.primary,
     borderRadius: RADIUS.full,
   },
+  seekBarThumb: {
+    width: 14,
+    height: 14,
+    borderRadius: RADIUS.full,
+    backgroundColor: COLORS.primary,
+    position: 'absolute',
+    marginLeft: -7,
+  },
   timeRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 6,
   },
   timeText: {
+    fontSize: 11,
+    fontWeight: '700',
     color: COLORS.onSurfaceVariant,
-    fontSize: 12,
-    fontWeight: '600',
   },
   controlsRow: {
-    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    marginBottom: SPACING.xl,
+    paddingVertical: SPACING.xs,
   },
   subControlBtn: {
     width: 44,
     height: 44,
-    borderRadius: RADIUS.full,
     alignItems: 'center',
     justifyContent: 'center',
   },
   skipBtn: {
-    width: 52,
-    height: 52,
-    borderRadius: RADIUS.full,
+    width: 48,
+    height: 48,
     alignItems: 'center',
     justifyContent: 'center',
   },
   mainPlayBtn: {
-    width: 76,
-    height: 76,
+    width: 68,
+    height: 68,
     borderRadius: RADIUS.full,
     backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    ...SHADOWS.card,
+    ...SHADOWS.goldGlow,
   },
   actionsBar: {
-    width: '100%',
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-around',
-    paddingTop: SPACING.md,
+    paddingVertical: SPACING.sm,
     borderTopWidth: 1,
-    borderTopColor: COLORS.surfaceVariant,
+    borderBottomWidth: 1,
+    borderColor: COLORS.surfaceVariant,
   },
   actionItem: {
     alignItems: 'center',
     gap: 4,
   },
   actionText: {
-    color: COLORS.onSurfaceVariant,
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: '600',
+    color: COLORS.onSurfaceVariant,
+  },
+  versesCard: {
+    backgroundColor: COLORS.surfaceContainerLowest,
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    gap: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.surfaceVariant,
+    ...SHADOWS.card,
+  },
+  versesHeader: {
+    fontSize: 11,
+    fontWeight: '900',
+    color: COLORS.primary,
+    letterSpacing: 1,
+  },
+  verseBlock: {
+    paddingBottom: SPACING.xs,
+  },
+  verseText: {
+    fontSize: 15,
+    lineHeight: 24,
+    color: COLORS.onSurface,
+    fontWeight: '500',
   },
 });

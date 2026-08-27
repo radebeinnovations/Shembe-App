@@ -8,57 +8,12 @@ import {
   Image,
   Share,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import Svg, { Path } from 'react-native-svg';
+import { Ionicons, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '../theme/theme';
 
 interface HomeScreenProps {
   onNavigate: (screen: string) => void;
 }
-
-/* Custom SVG Icons matching exact Stitch prototype image_0.png & image_1.png */
-const HymnsIcon = () => (
-  <Svg width={28} height={28} viewBox="0 0 24 24" fill="#735c00">
-    <Path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.2 20.1 5.05 19.5 6.5 19.5c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.35-.75-2-1zm-1 12.25c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v10.25zM6.5 7.5c.78 0 1.55.08 2.25.25V9.3c-.7-.13-1.47-.2-2.25-.2-1.35 0-2.85.3-4 1V8.5c1.15-.7 2.65-1 4-1zm0 3c.78 0 1.55.08 2.25.25v1.55c-.7-.13-1.47-.2-2.25-.2-1.35 0-2.85.3-4 1v-1.6c1.15-.7 2.65-1 4-1zm0 3c.78 0 1.55.08 2.25.25v1.55c-.7-.13-1.47-.2-2.25-.2-1.35 0-2.85.3-4 1v-1.6c1.15-.7 2.65-1 4-1z" />
-  </Svg>
-);
-
-const SermonsIcon = () => (
-  <Svg width={28} height={28} viewBox="0 0 24 24">
-    <Path d="M4 9h3l5-4v14l-5-4H4V9z" fill="#735c00" />
-    <Path d="M7 14h2.5v3.5H7z" fill="#735c00" />
-    <Path
-      d="M15.5 8.5l2.2-2.2M17.5 12h3M15.5 15.5l2.2 2.2"
-      stroke="#735c00"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-    />
-  </Svg>
-);
-
-const PrayerIcon = () => (
-  <Svg width={30} height={30} viewBox="0 0 24 24" fill="#012d1d">
-    <Path d="M12 2L6 8.5V19h3.5v-8.5L12 6.5l2.5 4V19H18V8.5L12 2z" />
-  </Svg>
-);
-
-const ScripturesIcon = () => (
-  <Svg width={28} height={28} viewBox="0 0 24 24" fill="#414844">
-    <Path d="M19 2H6c-1.2 0-2 .9-2 2v16c0 1.1.9 2 2 2h13c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-6 17H6V4h7v15zm6 0h-4V4h4v15z" />
-  </Svg>
-);
-
-const GiveIcon = () => (
-  <Svg width={28} height={28} viewBox="0 0 24 24" fill="#745c00">
-    <Path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-  </Svg>
-);
-
-const CommunityIcon = () => (
-  <Svg width={28} height={28} viewBox="0 0 24 24" fill="#414844">
-    <Path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
-  </Svg>
-);
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
   const handleShareQuote = async () => {
@@ -116,7 +71,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
         </View>
       </View>
 
-      {/* Quick Access Bento Grid with Exact Prototype SVG Icons */}
+      {/* Quick Access Bento Grid with Clean Vector Icons */}
       <View style={styles.quickAccessSection}>
         <Text style={styles.quickAccessHeaderLabel}>Quick Access</Text>
 
@@ -127,8 +82,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
             onPress={() => onNavigate('Hymns')}
             activeOpacity={0.8}
           >
-            <View style={[styles.iconCircle, { backgroundColor: '#fff6d6' }]}>
-              <HymnsIcon />
+            <View style={[styles.iconCircle, { backgroundColor: '#fef3c7' }]}>
+              <MaterialCommunityIcons name="book-open-variant" size={24} color="#735c00" />
             </View>
             <Text style={styles.bentoCardTitle}>Hymns</Text>
           </TouchableOpacity>
@@ -139,8 +94,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
             onPress={() => onNavigate('Sermons')}
             activeOpacity={0.8}
           >
-            <View style={[styles.iconCircle, { backgroundColor: '#fff6d6' }]}>
-              <SermonsIcon />
+            <View style={[styles.iconCircle, { backgroundColor: '#fef3c7' }]}>
+              <MaterialCommunityIcons name="bullhorn-outline" size={24} color="#735c00" />
             </View>
             <Text style={styles.bentoCardTitle}>Sermons</Text>
           </TouchableOpacity>
@@ -152,7 +107,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
             activeOpacity={0.8}
           >
             <View style={[styles.iconCircle, { backgroundColor: '#e0f2f1' }]}>
-              <PrayerIcon />
+              <FontAwesome5 name="pray" size={22} color="#012d1d" />
             </View>
             <Text style={styles.bentoCardTitle}>Prayer</Text>
           </TouchableOpacity>
@@ -164,7 +119,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
             activeOpacity={0.8}
           >
             <View style={[styles.iconCircle, { backgroundColor: '#efeeea' }]}>
-              <ScripturesIcon />
+              <MaterialCommunityIcons name="book-open-page-variant" size={24} color="#414844" />
             </View>
             <Text style={styles.bentoCardTitle}>Scriptures</Text>
           </TouchableOpacity>
@@ -176,7 +131,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
             activeOpacity={0.8}
           >
             <View style={[styles.iconCircle, { backgroundColor: '#fed65b' }]}>
-              <GiveIcon />
+              <FontAwesome5 name="hand-holding-heart" size={22} color="#745c00" />
             </View>
             <Text style={styles.bentoCardTitle}>Give</Text>
           </TouchableOpacity>
@@ -188,7 +143,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
             activeOpacity={0.8}
           >
             <View style={[styles.iconCircle, { backgroundColor: '#efeeea' }]}>
-              <CommunityIcon />
+              <MaterialCommunityIcons name="account-group" size={24} color="#414844" />
             </View>
             <Text style={styles.bentoCardTitle}>Community</Text>
           </TouchableOpacity>

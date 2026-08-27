@@ -359,7 +359,7 @@ export const TemplesScreen: React.FC<TemplesScreenProps> = ({ onBack }) => {
               onPress={() => setSelectedRegion('All')}
             >
               <Text style={[styles.filterChipText, selectedRegion === 'All' && styles.activeFilterChipText]}>
-                Distance (Nearest First)
+                All
               </Text>
               {selectedRegion === 'All' && (
                 <Ionicons name="checkmark" size={14} color={COLORS.white} />
@@ -850,6 +850,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: RADIUS.full,
+    flexShrink: 1,
   },
   cardNavBtnText: {
     color: COLORS.white,
@@ -862,11 +863,13 @@ const styles = StyleSheet.create({
     gap: 2,
     paddingVertical: 4,
     paddingHorizontal: 4,
+    flexShrink: 0,
   },
   detailsBtnText: {
     color: COLORS.primary,
     fontSize: 13,
     fontWeight: '800',
+    flexShrink: 0,
   },
   modalOverlay: {
     flex: 1,

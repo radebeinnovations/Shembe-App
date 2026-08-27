@@ -9,7 +9,8 @@ export const MOCK_HYMNS: Hymn[] = [
     category: 'Isihlabelelo',
     composer: 'Prophet Isaiah Shembe (1910)',
     duration: '04:15',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+    youtubeId: 'lhix6F5Fahw',
+    audioUrl: '',
     verses: [
       '1. Nkosi yami, woza kimina,\nUngamukele emseni wakho;\nMina ngingucezu lodwa,\nNginike amandla emoya.',
       '2. Ebuhleni bakho uThixo,\nUngigcine endleleni yakho;\nUngavumeli amaphutha ami,\nUkuthi angihlukanise nawe.',
@@ -24,7 +25,8 @@ export const MOCK_HYMNS: Hymn[] = [
     category: 'Inhlokomo',
     composer: 'Prophet Isaiah Shembe',
     duration: '05:30',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+    youtubeId: 'wmJs6fegC0Q',
+    audioUrl: '',
     verses: [
       '1. Izintaba zaseNhlangakazi,\nZibona ubukhosi bukaThixo;\nLapho abantwana bamaNazaretha,\nBaphuza emthonjeni womphakathi.',
       '2. Khangela iSabatha eliNgcwele,\nLinomusa nesibusiso;\nSizokhuleka kuyo yonke imihla,\nSiphakamise igama likaJehova.',
@@ -39,7 +41,8 @@ export const MOCK_HYMNS: Hymn[] = [
     category: 'Isihlabelelo',
     composer: 'Prophet J.G. Shembe (1940)',
     duration: '03:50',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+    youtubeId: 'pSLsQkHaElI',
+    audioUrl: '',
     verses: [
       '1. Baqonde entabeni eyingcwele,\nBahamba ngoxolo nangomthandazo;\nBangabantwana bakaShembe,\nAbafuna ukukhanya kweZulu.',
       '2. Lalelani izwi lomprofethi,\nLiletha impilo nomusa;\nMusani ukwesaba indlela,\nUThixo ugonqe nabasindisiwe.'
@@ -53,7 +56,8 @@ export const MOCK_HYMNS: Hymn[] = [
     category: 'Imthandazo',
     composer: 'Prophet A.K. Shembe',
     duration: '06:10',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+    youtubeId: 'qg4SZq6N7uM',
+    audioUrl: '',
     verses: [
       '1. Thixo Somandla Simakade,\nSiza embelekweni yakho;\nSihlabelela imiyalezo eyingcwele,\nSiyabonga umusa nomvuzo.',
       '2. Ekuphakameni kwakho Thixo,\nSinike ingqondo nezwi;\nSibe ngofakazi bothando,\nKuyo yonke imindeni yakithi.'
@@ -67,7 +71,8 @@ export const MOCK_HYMNS: Hymn[] = [
     category: 'Isiphetho',
     composer: 'Prophet V.V. Shembe',
     duration: '04:45',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
+    youtubeId: 'JN12GCRswsE',
+    audioUrl: '',
     verses: [
       '1. Ameni khangela iSabatha,\nSekufike isikhathi semvuselelo;\nSibonisa ukuzithoba entandweni,\nKuyonke imiSebenzi yethu.',
       '2. Phakamisa izandla zakho,\nUkhuleke kuSimakade;\nUdumo kuye uShembe,\nOwasisiza ebumnyameni.'
@@ -81,7 +86,8 @@ export const MOCK_HYMNS: Hymn[] = [
     category: 'Inhlokomo',
     composer: 'Prophet M.D. Shembe',
     duration: '05:05',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
+    youtubeId: 'N-BiyUGtXYI',
+    audioUrl: '',
     verses: [
       '1. Ngiyakuthanda muzi waseBuhleni,\nNgentaba emhlophe nangomusa;\nLapho ibandla laseNazaretha,\nLihlangana ngomthandazo nomculo.',
       '2. Umphakathi uyavuma,\nIgama likaJehova limile;\nKuzo zonke izizukulwane,\nLiyadunyiswa ngenhliziyo yonke.'
@@ -241,35 +247,52 @@ export const MOCK_TEMPLES: Temple[] = [
 export const MOCK_SERMONS: Sermon[] = [
   {
     id: 's1',
-    title: 'Ukuhamba Emseni Nomusa kaThixo (Walking in Divine Grace)',
+    title: 'Inkonzo yoSabatha Ebuhleni - Inkulumo kaNkulunkulu (Sabbath Broadcast 1)',
     speaker: 'Unyazi LweZulu - Prophet Unyazi Shembe',
     date: 'Saturday, July 20, 2026',
-    duration: '48:30',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    duration: '1:12:30',
+    audioUrl: '',
+    videoUrl: 'https://www.youtube.com/embed/P3SSIJTx50Y?autoplay=1',
+    youtubeId: 'P3SSIJTx50Y',
     isLive: true,
     category: 'Sabbath Service',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1519817650390-64a93db51149?w=800&auto=format&fit=crop'
+    thumbnailUrl: 'https://img.youtube.com/vi/P3SSIJTx50Y/hqdefault.jpg'
   },
   {
     id: 's2',
-    title: 'Inhlokomo kaSabatha Entabeni (Sabbath Blessing on the Mountain)',
-    speaker: 'Baba Mfundisi Mdlalose',
-    date: 'Saturday, July 13, 2026',
-    duration: '35:15',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+    title: 'Uhambo Oluyingcwele LwaseNhlangakazi (Holy Mountain Broadcast 2)',
+    speaker: 'Abaphathi beBandla lamaNazaretha',
+    date: 'Saturday, January 18, 2026',
+    duration: '45:15',
+    audioUrl: '',
+    videoUrl: 'https://www.youtube.com/embed/BiC8OFBIsJk?autoplay=1',
+    youtubeId: 'BiC8OFBIsJk',
     category: 'Holy Gathering',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&auto=format&fit=crop'
+    thumbnailUrl: 'https://img.youtube.com/vi/BiC8OFBIsJk/hqdefault.jpg'
   },
   {
     id: 's3',
-    title: 'Ukulondeka Kwezintsha neSiko (Youth Guidance & Heritage)',
-    speaker: 'Abaphathi bamaNhlangano',
-    date: 'Saturday, June 27, 2026',
-    duration: '42:00',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+    title: 'Umhlanganiso Omkhulu waNtulikazi eBuhleni (July Gathering Service 3)',
+    speaker: 'Unyazi LweZulu & AmaBhanti oQobo',
+    date: 'Sunday, July 27, 2025',
+    duration: '1:45:00',
+    audioUrl: '',
+    videoUrl: 'https://www.youtube.com/embed/ZLEItpK2p7g?autoplay=1',
+    youtubeId: 'ZLEItpK2p7g',
+    category: 'Holy Gathering',
+    thumbnailUrl: 'https://img.youtube.com/vi/ZLEItpK2p7g/hqdefault.jpg'
+  },
+  {
+    id: 's4',
+    title: 'Izihlabelelo zamaNazaretha - Youth Choir & Brass Band Praise 4',
+    speaker: 'AmaChoir namaBhanti eBandla lamaNazaretha',
+    date: 'Saturday, June 14, 2026',
+    duration: '38:20',
+    audioUrl: '',
+    videoUrl: 'https://www.youtube.com/embed/aoEmgMXPWsA?autoplay=1',
+    youtubeId: 'aoEmgMXPWsA',
     category: 'Youth Address',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=800&auto=format&fit=crop'
+    thumbnailUrl: 'https://img.youtube.com/vi/aoEmgMXPWsA/hqdefault.jpg'
   }
 ];
 

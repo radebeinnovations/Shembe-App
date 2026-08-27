@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, StatusBar, Platform } from 'react-native';
-import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  SafeAreaView,
+  StatusBar,
+  Platform,
+  useWindowDimensions,
+} from 'react-native';
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { AudioPlayerModal } from './src/components/AudioPlayerModal';
 import { AudioProvider } from './src/context/AudioContext';
 import { BookmarkProvider } from './src/context/BookmarkContext';
@@ -23,42 +32,109 @@ import { PilgrimageScreen } from './src/screens/PilgrimageScreen';
 import { OfferingsScreen } from './src/screens/OfferingsScreen';
 import { SermonsScreen } from './src/screens/SermonsScreen';
 import { PrayerScreen } from './src/screens/PrayerScreen';
+import { MyContributionsScreen } from './src/screens/MyContributionsScreen';
+import { MyFundraisersScreen } from './src/screens/MyFundraisersScreen';
+import { CreateFundraiserScreen } from './src/screens/CreateFundraiserScreen';
 
 import { COLORS, RADIUS, SHADOWS } from './src/theme/theme';
 
 export default function App() {
-  const [appState, setAppState] = useState<'splash' | 'welcome' | 'onboarding' | 'location_permission' | 'signin' | 'signup' | 'otp' | 'forgot_password' | 'main'>('splash');
-  const [currentTab, setCurrentTab] = useState<'Home' | 'Explore' | 'Churches' | 'Prayer' | 'Profile' | 'Hymns' | 'Offerings' | 'Sermons' | 'Pilgrimage'>('Home');
+  const { width } = useWindowDimensions();
+
+  const [appState, setAppState] = useState<
+    | 'splash'
+    | 'welcome'
+    | 'onboarding'
+    | 'location_permission'
+    | 'signin'
+    | 'signup'
+    | 'otp'
+    | 'forgot_password'
+    | 'main'
+  >('splash');
+
+  const [currentTab, setCurrentTab] = useState<
+    | 'Home'
+    | 'Explore'
+    | 'Churches'
+    | 'Prayer'
+    | 'Profile'
+    | 'Hymns'
+    | 'Offerings'
+    | 'Sermons'
+    | 'Pilgrimage'
+    | 'MyContributions'
+    | 'MyFundraisers'
+    | 'CreateFundraiser'
+  >('Home');
+
+  // Navigation History Stack for top-left Back button
+  const [navHistory, setNavHistory] = useState<string[]>(['Home']);
+
+  const navigateTo = (screen: string) => {
+    setNavHistory((prev) => [...prev, screen]);
+    setCurrentTab(screen as any);
+  };
+
+  const popScreen = () => {
+    if (navHistory.length > 1) {
+      const newHistory = [...navHistory];
+      newHistory.pop();
+      const prevScreen = newHistory[newHistory.length - 1];
+      setNavHistory(newHistory);
+      setCurrentTab(prevScreen as any);
+    } else {
+      setCurrentTab('Home');
+    }
+  };
+
+  // Only enable desktop frame container when viewing on a wide desktop screen (>768px)
+  const isDesktop = width > 768;
   const [isMobileFrame, setIsMobileFrame] = useState<boolean>(true);
-  const [userLocation, setUserLocation] = useState<string>('Durban Central, KZN');
 
   const renderMainTab = () => {
     switch (currentTab) {
       case 'Home':
-        return <HomeScreen onNavigate={(screen) => setCurrentTab(screen as any)} />;
+        return <HomeScreen onNavigate={navigateTo} />;
       case 'Explore':
-        return <ExploreScreen onNavigate={(screen) => setCurrentTab(screen as any)} />;
+        return <ExploreScreen onNavigate={navigateTo} />;
       case 'Churches':
-        return <TemplesScreen />;
+        return <TemplesScreen onBack={popScreen} />;
       case 'Prayer':
-        return <PrayerScreen onNavigate={(screen) => setCurrentTab(screen as any)} />;
+        return <PrayerScreen onNavigate={navigateTo} />;
       case 'Hymns':
         return <HymnsScreen />;
       case 'Profile':
         return (
           <ProfileScreen
             onSignOut={() => setAppState('welcome')}
-            onNavigate={(screen) => setCurrentTab(screen as any)}
+            onNavigate={navigateTo}
           />
         );
       case 'Offerings':
-        return <OfferingsScreen onBack={() => setCurrentTab('Explore')} />;
+        return <OfferingsScreen onBack={popScreen} />;
       case 'Sermons':
-        return <SermonsScreen onBack={() => setCurrentTab('Explore')} />;
+        return <SermonsScreen onBack={popScreen} />;
       case 'Pilgrimage':
-        return <PilgrimageScreen onBack={() => setCurrentTab('Explore')} />;
+        return <PilgrimageScreen onBack={popScreen} />;
+      case 'MyContributions':
+        return <MyContributionsScreen onBack={popScreen} />;
+      case 'MyFundraisers':
+        return (
+          <MyFundraisersScreen
+            onBack={popScreen}
+            onCreateNew={() => navigateTo('CreateFundraiser')}
+          />
+        );
+      case 'CreateFundraiser':
+        return (
+          <CreateFundraiserScreen
+            onClose={popScreen}
+            onViewMyFundraisers={() => navigateTo('MyFundraisers')}
+          />
+        );
       default:
-        return <HomeScreen onNavigate={(screen) => setCurrentTab(screen as any)} />;
+        return <HomeScreen onNavigate={navigateTo} />;
     }
   };
 
@@ -84,8 +160,7 @@ export default function App() {
       case 'location_permission':
         return (
           <LocationPermissionScreen
-            onLocationSelected={(loc) => {
-              setUserLocation(loc.name);
+            onLocationSelected={() => {
               setAppState('main');
             }}
           />
@@ -108,8 +183,7 @@ export default function App() {
       case 'otp':
         return (
           <OtpScreen
-            phoneNumber="+27 82 555 0192"
-            onVerifySuccess={() => setAppState('location_permission')}
+            onVerifySuccess={() => setAppState('main')}
             onBack={() => setAppState('signin')}
           />
         );
@@ -124,18 +198,14 @@ export default function App() {
       default:
         return (
           <View style={styles.mainContainer}>
-            {/* Screen Body */}
             <View style={styles.body}>{renderMainTab()}</View>
 
-            {/* Floating Audio Player & Hymn Reader */}
-            <AudioPlayerModal />
-
-            {/* Stitch Bottom Navigation Dock (5 Tabs matching image_0.png) */}
+            {/* Bottom Navigation Bar */}
             <View style={styles.tabBar}>
               {/* 1. Home */}
               <TouchableOpacity
                 style={[styles.tabItem, currentTab === 'Home' && styles.activeTabItem]}
-                onPress={() => setCurrentTab('Home')}
+                onPress={() => navigateTo('Home')}
                 activeOpacity={0.7}
               >
                 <Ionicons
@@ -156,7 +226,7 @@ export default function App() {
               {/* 2. Explore */}
               <TouchableOpacity
                 style={[styles.tabItem, currentTab === 'Explore' && styles.activeTabItem]}
-                onPress={() => setCurrentTab('Explore')}
+                onPress={() => navigateTo('Explore')}
                 activeOpacity={0.7}
               >
                 <Ionicons
@@ -177,12 +247,12 @@ export default function App() {
               {/* 3. Churches */}
               <TouchableOpacity
                 style={[styles.tabItem, currentTab === 'Churches' && styles.activeTabItem]}
-                onPress={() => setCurrentTab('Churches')}
+                onPress={() => navigateTo('Churches')}
                 activeOpacity={0.7}
               >
-                <MaterialCommunityIcons
+                <FontAwesome5
                   name="church"
-                  size={22}
+                  size={18}
                   color={currentTab === 'Churches' ? COLORS.white : COLORS.onSurfaceVariant}
                 />
                 <Text
@@ -198,12 +268,12 @@ export default function App() {
               {/* 4. Prayer */}
               <TouchableOpacity
                 style={[styles.tabItem, currentTab === 'Prayer' && styles.activeTabItem]}
-                onPress={() => setCurrentTab('Prayer')}
+                onPress={() => navigateTo('Prayer')}
                 activeOpacity={0.7}
               >
                 <FontAwesome5
                   name="praying-hands"
-                  size={20}
+                  size={18}
                   color={currentTab === 'Prayer' ? COLORS.white : COLORS.onSurfaceVariant}
                 />
                 <Text
@@ -219,7 +289,7 @@ export default function App() {
               {/* 5. Profile */}
               <TouchableOpacity
                 style={[styles.tabItem, currentTab === 'Profile' && styles.activeTabItem]}
-                onPress={() => setCurrentTab('Profile')}
+                onPress={() => navigateTo('Profile')}
                 activeOpacity={0.7}
               >
                 <Ionicons
@@ -242,14 +312,16 @@ export default function App() {
     }
   };
 
+  const showMobileFrameOnDesktop = isDesktop && isMobileFrame && Platform.OS === 'web';
+
   return (
     <AudioProvider>
       <BookmarkProvider>
         <SafeAreaView style={styles.rootBackground}>
           <StatusBar barStyle="dark-content" backgroundColor={COLORS.surface} />
 
-          {/* Web View Mode Toggle Header */}
-          {Platform.OS === 'web' && (
+          {/* Web View Mode Toggle Header ONLY shown on Desktop Laptop browsers */}
+          {isDesktop && Platform.OS === 'web' && (
             <View style={styles.viewModeHeader}>
               <Text style={styles.viewModeTitle}>📱 Shembe App Mobile Preview</Text>
               <TouchableOpacity
@@ -268,8 +340,8 @@ export default function App() {
             </View>
           )}
 
-          {/* Render Area */}
-          <View style={[styles.rootContainer, isMobileFrame && Platform.OS === 'web' && styles.mobilePhoneFrame]}>
+          {/* Render Area - Full screen on Mobile Phones! */}
+          <View style={[styles.rootContainer, showMobileFrameOnDesktop && styles.mobilePhoneFrame]}>
             {renderScreenContent()}
           </View>
         </SafeAreaView>
@@ -281,7 +353,7 @@ export default function App() {
 const styles = StyleSheet.create({
   rootBackground: {
     flex: 1,
-    backgroundColor: '#e6e4df',
+    backgroundColor: COLORS.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },

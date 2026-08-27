@@ -7,6 +7,9 @@ export interface Hymn {
   isiZuluTitle: string;
   composer?: string;
   audioUrl?: string;
+  youtubeId?: string;
+  spotifyUrl?: string;
+  appleMusicUrl?: string;
   duration?: string;
   isFavorite?: boolean;
 }
@@ -62,6 +65,9 @@ export interface Sermon {
   duration: string;
   audioUrl: string;
   videoUrl?: string;
+  youtubeId?: string;
+  spotifyUrl?: string;
+  appleMusicUrl?: string;
   isLive?: boolean;
   category: 'Sabbath Service' | 'Holy Gathering' | 'Youth Address' | 'Historical Recording';
   thumbnailUrl: string;

@@ -7,6 +7,7 @@ import {
   Modal,
   ScrollView,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAudio } from '../context/AudioContext';
@@ -108,13 +109,24 @@ export const AudioPlayerModal: React.FC = () => {
 
           <ScrollView style={styles.versesScroll} contentContainerStyle={styles.scrollContent}>
             <View style={styles.coverDiscContainer}>
-              <View style={styles.largeDisc}>
-                <Ionicons
-                  name={activeTrack.type === 'hymn' ? 'book' : 'radio'}
-                  size={52}
-                  color={COLORS.white}
-                />
-              </View>
+              {activeTrack.youtubeId && Platform.OS === 'web' ? (
+                <View style={{ width: '100%', height: 210, borderRadius: 16, overflow: 'hidden', marginBottom: 12, backgroundColor: '#000' }}>
+                  <iframe
+                    src={`https://www.youtube.com/embed/${activeTrack.youtubeId}?autoplay=1`}
+                    style={{ width: '100%', height: '100%', border: 0 }}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </View>
+              ) : (
+                <View style={styles.largeDisc}>
+                  <Ionicons
+                    name={activeTrack.type === 'hymn' ? 'book' : 'radio'}
+                    size={52}
+                    color={COLORS.white}
+                  />
+                </View>
+              )}
               <Text style={styles.fullTitle}>{activeTrack.title}</Text>
               <Text style={styles.fullSubtitle}>{activeTrack.subtitle}</Text>
             </View>
