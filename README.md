@@ -4,8 +4,11 @@
 [![React Native](https://img.shields.io/badge/React_Native-0.74+-61DAFB?logo=react&logoColor=black)](https://reactnative.dev/)
 [![Expo](https://img.shields.io/badge/Expo-SDK_51+-000000?logo=expo&logoColor=white)](https://expo.dev/)
 [![Supabase](https://img.shields.io/badge/Supabase-Database_%26_Auth-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+[![Web Live Preview](https://img.shields.io/badge/Live_Preview-Vercel-black?logo=vercel)](https://shembe-app.vercel.app/)
 
 An all-in-one digital companion for the **Nazareth Baptist Church (Ibandla laseNazaretha / Shembe)** community. Designed for mobile (iOS & Android) and Web, the Shembe App connects congregants worldwide with sacred hymns (*Izihlabelelo*), annual holy pilgrimage guides, branch/temple locators, live sermon streams, and church announcements.
+
+👉 **[View the Live Web App](https://shembe-app.vercel.app/)**
 
 ---
 
@@ -14,7 +17,7 @@ An all-in-one digital companion for the **Nazareth Baptist Church (Ibandla laseN
 ### 📖 1. Izihlabelelo zamaNazaretha (Digital Hymnbook)
 - Full collection of sacred hymns written by Prophet Isaiah Shembe and successors.
 - **Search & Filter**: Find hymns instantly by number, title, or keyword in isiZulu.
-- **Favorites & Audio Playback**: Save favorite hymns and listen to choir recordings/chants.
+- **Favorites & Audio Playback**: Save favorite hymns and listen to choir recordings/chants (powered by embedded YouTube IFrame API).
 - **Offline Access**: Full text available offline without internet connectivity.
 
 ### 🏔️ 2. Sacred Pilgrimages & Holy Calendar (*Izinhlangano & Inhlokomo*)
@@ -47,7 +50,8 @@ An all-in-one digital companion for the **Nazareth Baptist Church (Ibandla laseN
 - **Backend & Auth**: [Supabase](https://supabase.com/) (PostgreSQL Database, Realtime Subscriptions, Row Level Security)
 - **UI & Design**: Custom design system honoring traditional Shembe aesthetic (Holy Gold, White, Deep Emerald Green) with modern Glassmorphism.
 - **Maps**: `react-native-maps` / Leaflet API
-- **Audio Engine**: `expo-av` for background hymn audio playback
+- **Audio Engine**: Custom `AudioContext` integration utilizing YouTube IFrame API for background web playback and `expo-av` for native.
+- **Deployment**: Hosted seamlessly on [Vercel](https://vercel.com/) (Web)
 
 ---
 
@@ -66,3 +70,20 @@ Ensure you have the following installed on your development machine:
    ```bash
    git clone https://github.com/radebeinnovations/Shembe-app.git
    cd Shembe-app
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server:**
+   ```bash
+   npx expo start
+   ```
+
+### Web Development
+To run the web version specifically (matching the Vercel deployment):
+```bash
+npx expo start --web
+```
