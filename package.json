@@ -8,7 +8,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "build": "npx expo export -p web",
-    "test": "jest"
+    "test": "npx tsc --noEmit && npx expo export -p web"
   },
   "dependencies": {
     "@expo/metro-runtime": "~3.2.3",

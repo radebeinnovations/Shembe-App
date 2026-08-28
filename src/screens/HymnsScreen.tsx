@@ -29,7 +29,7 @@ export const HymnsScreen: React.FC<HymnsScreenProps> = ({ onBack }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [activeSubScreen, setActiveSubScreen] = useState<'main' | 'search' | 'player' | 'downloaded'>('main');
 
-  const { playHymn, activeTrack, isPlaying } = useAudio();
+  const { playHymn, activeTrack, isPlaying, setModalVisible } = useAudio();
   const { isFavoriteHymn, toggleFavoriteHymn } = useBookmarks();
 
   const categories = ['All', 'Recent', 'Favourites', 'Offline'];
@@ -39,8 +39,12 @@ export const HymnsScreen: React.FC<HymnsScreenProps> = ({ onBack }) => {
       const matchesCategory =
         selectedCategory === 'All'
           ? true
-          : selectedCategory === 'Favorites'
+          : selectedCategory === 'Favourites'
           ? isFavoriteHymn(hymn.id)
+          : selectedCategory === 'Recent'
+          ? activeTrack?.id === hymn.id
+          : selectedCategory === 'Offline'
+          ? false
           : hymn.category === selectedCategory;
 
       const query = searchQuery.trim().toLowerCase();
@@ -54,8 +58,11 @@ export const HymnsScreen: React.FC<HymnsScreenProps> = ({ onBack }) => {
     });
   }, [searchQuery, selectedCategory, isFavoriteHymn]);
 
-  const handleSelectHymn = (hymn: Hymn) => {
-    playHymn(hymn);
+  const handleSelectHymn = async (hymn: Hymn) => {
+    await playHymn(hymn);
+    // This screen is the initial full player. Closing it reveals the persistent
+    // mini-player instead of presenting a second full-screen player on top.
+    setModalVisible(false);
     setActiveSubScreen('player');
   };
 
@@ -72,7 +79,10 @@ export const HymnsScreen: React.FC<HymnsScreenProps> = ({ onBack }) => {
   if (activeSubScreen === 'player') {
     return (
       <HymnPlayerScreen
-        onClose={() => setActiveSubScreen('main')}
+        onClose={() => {
+          setModalVisible(false);
+          setActiveSubScreen('main');
+        }}
         onOpenDownloaded={() => setActiveSubScreen('downloaded')}
       />
     );

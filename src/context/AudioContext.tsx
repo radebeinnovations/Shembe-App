@@ -44,7 +44,6 @@ const AudioContext = createContext<AudioContextType | undefined>(undefined);
 const YT_PLAYER_DIV_ID = 'yt-global-player';
 
 export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [activeTrack, setActiveTrack] = useState<AudioContextType['activeTrack']>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [positionMillis, setPositionMillis] = useState(0);
@@ -54,6 +53,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // YouTube IFrame API player reference
   const ytPlayerRef = useRef<any>(null);
   const positionTimerRef = useRef<any>(null);
+  const soundRef = useRef<Audio.Sound | null>(null);
 
   // ── Bootstrap the YouTube IFrame API once (web only) ─────────────────────
   useEffect(() => {
@@ -176,9 +176,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     youtubeId?: string
   ) => {
     // Stop any existing expo-av sound
-    if (sound) {
-      await sound.unloadAsync();
-      setSound(null);
+    if (soundRef.current) {
+      await soundRef.current.unloadAsync();
+      soundRef.current = null;
     }
     // Stop YouTube if switching away
     if (ytPlayerRef.current && typeof ytPlayerRef.current.stopVideo === 'function') {
@@ -209,9 +209,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           { shouldPlay: true },
           onPlaybackStatusUpdate
         );
-        setSound(newSound);
+        soundRef.current = newSound;
       } catch (e) {
         console.log('Error loading audio:', e);
+        setIsPlaying(false);
       }
     }
   };
@@ -242,11 +243,11 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
       return;
     }
-    if (sound) {
+    if (soundRef.current) {
       if (isPlaying) {
-        await sound.pauseAsync();
+        await soundRef.current.pauseAsync();
       } else {
-        await sound.playAsync();
+        await soundRef.current.playAsync();
       }
     } else {
       setIsPlaying(!isPlaying);
@@ -260,8 +261,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setPositionMillis(positionMs);
       return;
     }
-    if (sound) {
-      await sound.setPositionAsync(positionMs);
+    if (soundRef.current) {
+      await soundRef.current.setPositionAsync(positionMs);
     }
     setPositionMillis(positionMs);
   };
@@ -271,10 +272,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       ytPlayerRef.current.stopVideo();
     }
     stopPositionPolling();
-    if (sound) {
-      await sound.stopAsync();
-      await sound.unloadAsync();
-      setSound(null);
+    if (soundRef.current) {
+      await soundRef.current.stopAsync();
+      await soundRef.current.unloadAsync();
+      soundRef.current = null;
     }
     setActiveTrack(null);
     setIsPlaying(false);
@@ -308,6 +309,20 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       await playSermon(MOCK_SERMONS[prevIndex]);
     }
   };
+
+  // Avoid orphaned audio and polling timers when the app is closed or reloaded.
+  useEffect(() => {
+    return () => {
+      stopPositionPolling();
+      if (ytPlayerRef.current && typeof ytPlayerRef.current.destroy === 'function') {
+        ytPlayerRef.current.destroy();
+      }
+      if (soundRef.current) {
+        void soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+    };
+  }, []);
 
   return (
     <AudioContext.Provider

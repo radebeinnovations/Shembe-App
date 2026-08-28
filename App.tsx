@@ -374,6 +374,8 @@ export default function App() {
           {/* Render Area - Full screen on Mobile Phones! */}
           <View style={[styles.rootContainer, showMobileFrameOnDesktop && styles.mobilePhoneFrame]}>
             {renderScreenContent()}
+            {/* Keeps the playing hymn available while the user browses other screens. */}
+            <AudioPlayerModal />
           </View>
         </SafeAreaView>
       </BookmarkProvider>
