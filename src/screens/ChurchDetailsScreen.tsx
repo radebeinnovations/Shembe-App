@@ -15,6 +15,8 @@ import { COLORS, SPACING, RADIUS, SHADOWS } from '../theme/theme';
 interface ChurchDetailsScreenProps {
   onBack: () => void;
   onDirections?: () => void;
+  onGive?: () => void;
+  onRequestPrayer?: () => void;
   church?: {
     id: string;
     name: string;
@@ -31,6 +33,8 @@ interface ChurchDetailsScreenProps {
 export const ChurchDetailsScreen: React.FC<ChurchDetailsScreenProps> = ({
   onBack,
   onDirections,
+  onGive,
+  onRequestPrayer,
   church = {
     id: 'ekuphakameni',
     name: 'Ekuphakameni Mission',
@@ -126,7 +130,11 @@ export const ChurchDetailsScreen: React.FC<ChurchDetailsScreenProps> = ({
             <Text style={styles.directionsBtnText}>Get Directions</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.giveBtn} onPress={() => Alert.alert('Give Offering', 'Support this congregation')} activeOpacity={0.85}>
+          <TouchableOpacity
+            style={styles.giveBtn}
+            onPress={onGive || (() => Alert.alert('Give Offering', 'Support this congregation'))}
+            activeOpacity={0.85}
+          >
             <Ionicons name="heart-outline" size={24} color={COLORS.white} />
             <Text style={styles.giveBtnText}>Give</Text>
           </TouchableOpacity>
@@ -188,7 +196,7 @@ export const ChurchDetailsScreen: React.FC<ChurchDetailsScreenProps> = ({
         {/* Request Prayer Action Button */}
         <TouchableOpacity
           style={styles.requestPrayerBtn}
-          onPress={() => Alert.alert('Request Prayer', 'Your prayer request has been sent to the elders.')}
+          onPress={onRequestPrayer || (() => Alert.alert('Request Prayer', 'Your prayer request has been sent to the elders.'))}
           activeOpacity={0.85}
         >
           <Ionicons name="sparkles-outline" size={20} color={COLORS.onSurface} />

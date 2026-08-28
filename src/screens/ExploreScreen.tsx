@@ -56,7 +56,7 @@ export const ExploreScreen: React.FC<ExploreScreenProps> = ({
     return (
       <CreateFundraiserScreen
         onClose={() => setSubScreen('community')}
-        onViewMyFundraisers={() => setSubScreen('community')}
+        onViewMyFundraisers={() => onNavigate('MyFundraisers')}
       />
     );
   }
@@ -75,7 +75,11 @@ export const ExploreScreen: React.FC<ExploreScreenProps> = ({
           <Text style={styles.headerTitle}>Explore</Text>
         </View>
 
-        <TouchableOpacity style={styles.bellBtn} activeOpacity={0.7}>
+        <TouchableOpacity
+          style={styles.bellBtn}
+          onPress={() => onNavigate('NotificationsSettings')}
+          activeOpacity={0.7}
+        >
           <Ionicons name="notifications-outline" size={22} color={COLORS.primary} />
         </TouchableOpacity>
       </View>

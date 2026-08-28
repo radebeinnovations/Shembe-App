@@ -40,9 +40,10 @@ export interface ChurchItem {
 
 interface TemplesScreenProps {
   onBack?: () => void;
+  onNavigate?: (screen: string) => void;
 }
 
-export const TemplesScreen: React.FC<TemplesScreenProps> = ({ onBack }) => {
+export const TemplesScreen: React.FC<TemplesScreenProps> = ({ onBack, onNavigate }) => {
   const [viewMode, setViewMode] = useState<'map' | 'list'>('list');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedRegion, setSelectedRegion] = useState<string>('All');
@@ -279,6 +280,8 @@ export const TemplesScreen: React.FC<TemplesScreenProps> = ({ onBack }) => {
           setSelectedChurch(null);
           setNavigatingChurch(churchToNav);
         }}
+        onGive={() => onNavigate?.('Offerings')}
+        onRequestPrayer={() => onNavigate?.('Prayer')}
         church={selectedChurch}
       />
     );

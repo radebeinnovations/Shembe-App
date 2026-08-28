@@ -44,7 +44,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
 
         <TouchableOpacity
           style={styles.notificationBtn}
-          onPress={() => onNavigate('Explore')}
+          onPress={() => onNavigate('NotificationsSettings')}
           activeOpacity={0.7}
         >
           <Ionicons name="notifications-outline" size={22} color={COLORS.primary} />
@@ -115,7 +115,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
           {/* 4. Scriptures */}
           <TouchableOpacity
             style={styles.bentoCard}
-            onPress={() => onNavigate('Hymns')}
+            onPress={() => onNavigate('Bible')}
             activeOpacity={0.8}
           >
             <View style={[styles.iconCircle, { backgroundColor: '#F1F5F9' }]}>

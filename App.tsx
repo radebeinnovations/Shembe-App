@@ -116,7 +116,7 @@ export default function App() {
       case 'Explore_Community':
         return <ExploreScreen onNavigate={navigateTo} initialSubScreen="community" />;
       case 'Churches':
-        return <TemplesScreen onBack={popScreen} />;
+        return <TemplesScreen onBack={popScreen} onNavigate={navigateTo} />;
       case 'Prayer':
         return <PrayerScreen onNavigate={navigateTo} />;
       case 'Hymns':
@@ -157,7 +157,7 @@ export default function App() {
       case 'HelpSupport':
         return <HelpSupportScreen onBack={popScreen} />;
       case 'Events':
-        return <EventsScreen onBack={popScreen} />;
+        return <EventsScreen onBack={popScreen} onOpenSermons={() => navigateTo('Sermons')} />;
       case 'Teachings':
         return <TeachingsScreen onBack={popScreen} />;
       case 'Bible':

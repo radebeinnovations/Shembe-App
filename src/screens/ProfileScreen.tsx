@@ -167,7 +167,11 @@ The harmony in choir singing builds a shared sanctuary of spirit.`,
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Top App Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.avatarHeaderBtn} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={styles.avatarHeaderBtn}
+          onPress={() => onNavigate?.('PersonalInfo')}
+          activeOpacity={0.8}
+        >
           <Image
             source={require('../../assets/sipho_profile.png')}
             style={styles.avatarHeaderImage}
@@ -178,7 +182,7 @@ The harmony in choir singing builds a shared sanctuary of spirit.`,
 
         <TouchableOpacity
           style={styles.settingsBtn}
-          onPress={() => Alert.alert('Settings', 'App preferences & settings')}
+          onPress={() => onNavigate?.('NotificationsSettings')}
           activeOpacity={0.7}
         >
           <Ionicons name="settings-outline" size={22} color={COLORS.primary} />
@@ -226,7 +230,7 @@ The harmony in choir singing builds a shared sanctuary of spirit.`,
           {/* Prayers Card */}
           <TouchableOpacity
             style={styles.gridCard}
-            onPress={() => Alert.alert('Active Prayers', 'You have 5 active prayer requests.')}
+            onPress={() => onNavigate?.('Prayer')}
             activeOpacity={0.85}
           >
             <View style={[styles.cardIconCircle, { backgroundColor: '#ffe088' }]}>
