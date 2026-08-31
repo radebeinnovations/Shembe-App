@@ -43,6 +43,16 @@ const INITIAL_PRAYERS: PrayerItem[] = [
     status: 'Received',
     privacy: 'Prayer Team',
   },
+  {
+    id: 'p3',
+    title: 'Thanksgiving for a safe journey',
+    details: 'Giving thanks for the protection, fellowship, and peace experienced during the pilgrimage.',
+    category: 'Thanksgiving',
+    dateSubmitted: 'Sep 02, 2023',
+    location: 'KwaMashu',
+    status: 'Archived',
+    privacy: 'Private',
+  },
 ];
 
 const PRAYER_TYPES = [
@@ -167,8 +177,9 @@ export const PrayerScreen: React.FC<PrayerScreenProps> = () => {
   // DASHBOARD: My Prayers (Home view for Prayer tab)
   if (step === 'dashboard') {
     const filtered = prayersList.filter((p) => {
-      if (activeTab === 'Active') return p.status === 'Being Prayed For' || p.status === 'Received';
-      if (activeTab === 'Completed') return p.status === 'Answered';
+      if (activeTab === 'Active') return p.status === 'Being Prayed For';
+      // A request moves to Completed as soon as the prayer team receives it.
+      if (activeTab === 'Completed') return p.status === 'Received' || p.status === 'Answered';
       if (activeTab === 'Archived') return p.status === 'Archived';
       return true;
     });
@@ -210,7 +221,13 @@ export const PrayerScreen: React.FC<PrayerScreenProps> = () => {
               <View key={item.id} style={styles.prayerCard}>
                 <View style={styles.cardHeader}>
                   <Text style={styles.cardTitle}>{item.title}</Text>
-                  <View style={[styles.statusBadge, item.status === 'Being Prayed For' && styles.prayedBadge]}>
+                  <View
+                    style={[
+                      styles.statusBadge,
+                      item.status === 'Being Prayed For' && styles.prayedBadge,
+                      item.status === 'Archived' && styles.archivedBadge,
+                    ]}
+                  >
                     <Ionicons name="sparkles" size={12} color={COLORS.white} />
                     <Text style={styles.badgeText}>{item.status}</Text>
                   </View>
@@ -956,6 +973,9 @@ const styles = StyleSheet.create({
   },
   prayedBadge: {
     backgroundColor: COLORS.primaryContainer,
+  },
+  archivedBadge: {
+    backgroundColor: COLORS.onSurfaceVariant,
   },
   badgeText: {
     color: COLORS.white,
