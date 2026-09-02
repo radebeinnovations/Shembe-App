@@ -30,6 +30,9 @@ export const AudioPlayerModal: React.FC = () => {
   // Animated pulse for the pill glow when playing
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const pillScaleAnim = useRef(new Animated.Value(0)).current;
+  // React Native Web does not support the native animation driver. Keeping the
+  // animation on the JS driver there avoids a warning on every player update.
+  const useNativeDriver = Platform.OS !== 'web';
 
   useEffect(() => {
     if (activeTrack && !isModalVisible) {
@@ -38,7 +41,7 @@ export const AudioPlayerModal: React.FC = () => {
         toValue: 1,
         tension: 80,
         friction: 9,
-        useNativeDriver: true,
+        useNativeDriver,
       }).start();
     }
   }, [activeTrack, isModalVisible]);
@@ -47,13 +50,13 @@ export const AudioPlayerModal: React.FC = () => {
     if (isPlaying) {
       Animated.loop(
         Animated.sequence([
-          Animated.timing(pulseAnim, { toValue: 1.03, duration: 800, useNativeDriver: true }),
-          Animated.timing(pulseAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
+          Animated.timing(pulseAnim, { toValue: 1.03, duration: 800, useNativeDriver }),
+          Animated.timing(pulseAnim, { toValue: 1, duration: 800, useNativeDriver }),
         ])
       ).start();
     } else {
       pulseAnim.stopAnimation();
-      Animated.timing(pulseAnim, { toValue: 1, duration: 200, useNativeDriver: true }).start();
+      Animated.timing(pulseAnim, { toValue: 1, duration: 200, useNativeDriver }).start();
     }
   }, [isPlaying]);
 
